@@ -1592,6 +1592,35 @@ module Test =
          (73, 1, 75);
          (73, 3, 76)]
 
+    let l23 =
+      List.fold_left
+        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
+        IntIntLTS3.empty
+        [(78, 0, 79);
+         (79, 0, 80);
+         (80, 1, 81);
+         (81, 2, 82);
+         (78, 0, 83);
+         (83, 0, 84);
+	 (84, 2, 85)]
+
+    let l24 =
+      List.fold_left
+        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
+        IntIntLTS3.empty
+        [(86, 0, 87);
+	 (87, 1, 88);
+	 (87, 2, 89)]
+
+    let l25 =
+      List.fold_left
+        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
+        IntIntLTS3.empty
+        [(90, 0, 91);
+	 (90, 0, 92);
+	 (91, 1, 93);
+	 (92, 2, 94)]
+
     let () =
       IntIntLTS3.iter_vertex
         (function v ->
@@ -2088,5 +2117,68 @@ module Test =
       with
       | false -> "test146 passed"
       | true -> "test146 failed"
+
+    let example_sim_eq =
+      IntIntLTS3NK_Rel.get_distinguishing_formulae2
+	l24
+	l25
+	86
+	90
+	2
+	5
+
+    let example01 = 
+      IntIntLTS3NK_Rel.get_distinguishing_formulae1
+	l03
+	l04
+	0
+	14
+	3
+	5
+
+    let example02 = 
+      IntIntLTS3NK_Rel.get_distinguishing_formulae1
+	l07
+	l08
+	26
+	31
+	10
+	20
+
+    let example03 = 
+      IntIntLTS3NK_Rel.get_distinguishing_formulae1
+	l05
+	l06
+	23
+	25
+	2
+	5
+
+    let example04 = 
+      IntIntLTS3NK_Rel.get_distinguishing_formulae1
+	l18
+	l20
+	62
+	69
+	2
+	5
+
+    let example05 = 
+      IntIntLTS3NK_Rel.get_distinguishing_formulae1
+	l18
+	l22
+	62
+	69
+	2
+	5
+
+    let example06 = 
+      IntIntLTS3NK_Rel.get_distinguishing_formulae2
+	l19
+	l22
+	62
+	69
+	2
+	5
 
       end)
