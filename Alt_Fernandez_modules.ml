@@ -1191,12 +1191,6 @@ module Test =
                      ActionMap.empty)))
        end)
 
-    (* let () = *)
-    (*   let *)
-    (*       x:Dot_ast.attr = (Dot_ast.String "", Some (Dot_ast.String "")) *)
-    (*   in *)
-    (*   () *)
-
     module IntIntLTS3 = LTS_Functor (V) (E3)
 
     module IntIntLTS3Dot =
@@ -1275,6 +1269,9 @@ module Test =
         IntIntLTS3.empty
         [(23, 0, 23);
          (23, 0, 24)]
+
+    let l05 =
+      IntIntLTS3Dot.parse "test/l05.dot"
 
     let l06 =
       List.fold_left
