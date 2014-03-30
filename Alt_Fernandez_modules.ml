@@ -773,6 +773,154 @@ module NK_Rel =
         with
         | ([], _, _) -> true
         | (_, _, _) -> false
+
+      let
+	  get_distinguishing_formulae1
+	    lts1
+	    lts2
+	    p
+	    q
+	    n
+	    k
+	  =
+	let
+	    (yes_table, no_table) = (create_yes_table (), create_no_table ())
+	in
+	let
+	    (l1, yes_table, no_table) = 
+	  get_distinguishing_formulae
+	    lts1
+	    lts2
+	    p
+	    q
+	    n
+	    k
+            yes_table
+            no_table
+	    ()
+	in
+	l1
+
+      let
+	  get_distinguishing_formulae2
+	    lts1
+	    lts2
+	    p
+	    q
+	    n
+	    k
+	  =
+	let
+	    (yes_table, no_table) = (create_yes_table (), create_no_table ())
+	in
+	let
+	    (l1, yes_table, no_table) = 
+	  get_distinguishing_formulae
+	    lts1
+	    lts2
+	    p
+	    q
+	    n
+	    k
+            yes_table
+            no_table
+	    ()
+	in
+	let
+	    (l2, yes_table, no_table) = 
+	  get_distinguishing_formulae
+	    lts2
+	    lts1
+	    q
+	    p
+	    n
+	    k
+            yes_table
+            no_table
+	    ()
+	in
+	List.fold_left
+	  (fun list (n, k, f) ->
+	    if
+	      (List.exists
+		 (fun (n1, k1, f1) -> (n1 <= n) && (k1 <= k))
+		 list)
+	    then
+	      list
+	    else
+	      (n, k, f) ::
+		(List.filter
+		   (fun (n1, k1, f1) -> (n1 < n) || (k1 < k))
+		   list))
+	  []
+	  (l1 @ l2)
+
+      let
+	  get_nk_pairs
+	    f
+	    lts1
+	    lts2
+	    p
+	    q
+	    n
+	    k
+	  =
+	List.map
+	  (fun (n, k, f) -> (n, k))
+	  (f
+	     lts1
+	     lts2
+	     p
+	     q
+	     n
+	     k)
+
+      let
+	  get_nk_pairs1
+	  =
+	get_nk_pairs
+	  get_distinguishing_formulae1
+
+      let
+	  get_nk_pairs2
+	  =
+	get_nk_pairs
+	  get_distinguishing_formulae2
+
+      let
+	  get_nk_relation
+	    f
+	    lts1
+	    lts2
+	    p
+	    q
+	    n
+	    k
+	  =
+	match
+	  (f
+	     lts1
+	     lts2
+	     p
+	     q
+	     n
+	     k)
+	with
+	| [] -> true
+	| _ -> false
+
+      let
+	  get_nk_relation1
+	  =
+	get_nk_relation
+	  get_distinguishing_formulae1
+
+      let
+	  get_nk_relation2
+	  =
+	get_nk_relation
+	  get_distinguishing_formulae2
+
      end)
 
 module Test =
