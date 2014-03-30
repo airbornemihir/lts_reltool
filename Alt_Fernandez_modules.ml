@@ -1191,8 +1191,53 @@ module Test =
                      ActionMap.empty)))
        end)
 
+    (* let () = *)
+    (*   let *)
+    (*       x:Dot_ast.attr = (Dot_ast.String "", Some (Dot_ast.String "")) *)
+    (*   in *)
+    (*   () *)
+
     module IntIntLTS3 = LTS_Functor (V) (E3)
 
+    module IntIntLTS3Dot =
+      Dot.Parse
+        (Builder.P (IntIntLTS3))
+        (struct
+          let node (id, _) _ =
+            match
+              id
+            with
+            | Dot_ast.Number s
+            | Dot_ast.Ident s
+            | Dot_ast.Html s
+            | Dot_ast.String s -> (int_of_string s)
+
+          let edge attr_list =
+            try
+              (let
+                  (_, id) =
+                 List.find
+                   (function
+                       | (Dot_ast.Number s, _)
+                       | (Dot_ast.Ident s, _)
+                       | (Dot_ast.Html s, _)
+                       | (Dot_ast.String s, _) -> s = "action")
+                   (List.concat attr_list)
+              in
+              match
+                id
+              with
+              | Some (Dot_ast.Number s)
+              | Some (Dot_ast.Ident s)
+              | Some (Dot_ast.Html s)
+              | Some (Dot_ast.String s) -> (int_of_string s)
+              | None -> raise Not_found)
+            with
+            | Not_found -> E3.default
+         end)
+
+
+    (* l03 and l04 correspond to 3alternations.pdf *)
     let l03 =
       List.fold_left
         (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
@@ -1236,6 +1281,8 @@ module Test =
         (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
         IntIntLTS3.empty
         [(25, 0, 25)]
+
+    (* l07 and l08 correspond to Exercise 3.5 in Reactive Systems. *)
 
     let l07 =
       List.fold_left
