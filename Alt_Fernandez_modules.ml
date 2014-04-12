@@ -138,6 +138,49 @@ module HM_Formula =
         | BOX (a, formula) -> DIAMOND (a, negation formula)
         | AND formula_list -> OR (List.map negation formula_list)
         | OR formula_list -> AND (List.map negation formula_list)
+
+      let rec minimise formula =
+        let
+            formula =
+          match
+            formula
+          with
+          | DIAMOND (a, formula) -> DIAMOND (a, minimise formula)
+          | BOX (a, formula) -> BOX (a, minimise formula)
+          | AND formula_list ->
+            let
+                formula_list =
+              List.map minimise formula_list
+            in
+            if
+              List.mem (OR []) formula_list
+            then
+              OR []
+            else
+              (match
+                  (List.filter (Pervasives.(<>) (AND []))
+        formula_list)
+               with
+               | [formula] -> formula
+               | formula_list -> AND formula_list)
+          | OR formula_list ->
+            let
+                formula_list =
+              List.map minimise formula_list
+            in
+            if
+              List.mem (AND []) formula_list
+            then
+              AND []
+            else
+              (match
+                  (List.filter (Pervasives.(<>) (OR []))
+        formula_list)
+               with
+               | [formula] -> formula
+               | formula_list -> OR formula_list)
+        in
+        formula
           
      end)
 
@@ -1608,5 +1651,39 @@ module Test =
 	69
 	2
 	5
+
+    let test147 =
+      if
+        IntIntLTSNK_Rel.DIAMOND (0, IntIntLTSNK_Rel.OR [])
+          = 
+        IntIntLTSNK_Rel.minimise
+          (IntIntLTSNK_Rel.AND
+             [IntIntLTSNK_Rel.AND [];
+              IntIntLTSNK_Rel.DIAMOND
+                (0,
+                 IntIntLTSNK_Rel.AND
+                   [IntIntLTSNK_Rel.DIAMOND (0, IntIntLTSNK_Rel.AND []);
+                    IntIntLTSNK_Rel.OR []])])
+      then
+        "test147 passed"
+      else
+        "test147 failed"
+
+    let test148 =
+      if
+        IntIntLTSNK_Rel.BOX (0, IntIntLTSNK_Rel.AND [])
+          = 
+        IntIntLTSNK_Rel.minimise
+          (IntIntLTSNK_Rel.OR
+             [IntIntLTSNK_Rel.OR [];
+              IntIntLTSNK_Rel.BOX
+                (0,
+                 IntIntLTSNK_Rel.OR
+                   [IntIntLTSNK_Rel.BOX (0, IntIntLTSNK_Rel.OR []);
+                    IntIntLTSNK_Rel.AND []])])
+      then
+        "test148 passed"
+      else
+        "test148 failed"
 
       end)
