@@ -692,32 +692,33 @@ module NK_Rel =
 
      end)
 
+module IntV =
+  (struct
+    type t = int
+    let compare = Pervasives.compare
+    let hash = Hashtbl.hash
+    let equal = Pervasives.(=)
+    let state_name = string_of_int
+   end)
+
+module IntE =
+  (struct
+    type t = int
+    let compare = Pervasives.compare
+    let default = 0
+    type action = t
+    let action_name = string_of_int
+   end)
+
+module IntIntLTS = LTS_Functor (IntV) (IntE)
+
 module Test =
   (struct
-    module V =
-      (struct
-        type t = int
-        let compare = Pervasives.compare
-        let hash = Hashtbl.hash
-        let equal = Pervasives.(=)
-        let state_name = string_of_int
-       end)
-
-    module E1 =
-      (struct
-        type t = int
-        let compare = Pervasives.compare
-        let default = 0
-        type action = t
-        let action_name = string_of_int
-       end)
-
-    module IntIntLTS1 = LTS_Functor (V) (E1)
 
     let test93 =
       try
         match
-          IntIntLTS1.add_edge IntIntLTS1.empty 0 1
+          IntIntLTS.add_edge IntIntLTS.empty 0 1
         with
         | _ -> "test93 passed"
       with
@@ -726,7 +727,7 @@ module Test =
     let test94 =
       try
         match
-          IntIntLTS1.add_edge_e IntIntLTS1.empty (IntIntLTS1.E.create 0 0 1)
+          IntIntLTS.add_edge_e IntIntLTS.empty (IntIntLTS.E.create 0 0 1)
         with
         | _ -> "test94 passed"
       with
@@ -735,27 +736,18 @@ module Test =
     let test95 =
       try
         match
-          IntIntLTS1.add_edge_e IntIntLTS1.empty (IntIntLTS1.E.create 0 (-1) 1)
+          IntIntLTS.add_edge_e IntIntLTS.empty (IntIntLTS.E.create 0 (-1) 1)
         with
         | _ -> "test95 failed"
       with
       | Invalid_argument _ -> "test95 passed"
 
-    module E2 =
-      (struct
-        include E1
-       end)
-
-    module IntIntLTS2 = LTS_Functor (V) (E2)
-
-    module IntIntLTS1Dot = LTS_Dot_Functor (IntIntLTS1)
-
-    module IntIntLTS2Dot = LTS_Dot_Functor (IntIntLTS2)
+    module IntIntLTSDot = LTS_Dot_Functor (IntIntLTS)
 
     let test96 =
       try
         match
-          IntIntLTS2.add_edge IntIntLTS2.empty 0 1
+          IntIntLTS.add_edge IntIntLTS.empty 0 1
         with
         | g -> "test96 failed"
       with
@@ -764,7 +756,7 @@ module Test =
     let test97 =
       try
         match
-          IntIntLTS2.add_edge_e IntIntLTS2.empty (IntIntLTS2.E.create 0 3 1)
+          IntIntLTS.add_edge_e IntIntLTS.empty (IntIntLTS.E.create 0 3 1)
         with
         | g -> "test97 passed"
       with
@@ -772,21 +764,14 @@ module Test =
 
     let l01 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS1.add_edge_e g (IntIntLTS1.E.create src label dst))
-        (IntIntLTS1.add_vertex IntIntLTS1.empty 7)
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        (IntIntLTS.add_vertex IntIntLTS.empty 7)
         [(0, 0, 1); (1, 0, 1); (2, 1, 3); (3, 1, 4); (4, 1, 2); (5, 0, 0);
          (6, 0, 3); (5, 1, 6)]
 
-    module E3 =
-      (struct
-        include E1
-       end)
-
-    module IntIntLTS3 = LTS_Functor (V) (E3)
-
-    module IntIntLTS3Dot =
+    module IntIntLTSDotParse =
       Dot.Parse
-        (Builder.P (IntIntLTS3))
+        (Builder.P (IntIntLTS))
         (struct
           let node (id, _) _ =
             match
@@ -818,15 +803,15 @@ module Test =
               | Some (Dot_ast.String s) -> (int_of_string s)
               | None -> raise Not_found)
             with
-            | Not_found -> E3.default
+            | Not_found -> IntE.default
          end)
 
 
     (* l03 and l04 correspond to 3alternations.pdf *)
     let l03 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(0, 0, 1);
          (0, 0, 2);
          (1, 1, 3);
@@ -843,8 +828,8 @@ module Test =
 
     let l04 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(14, 0, 15);
          (15, 1, 16);
          (15, 1, 17);
@@ -856,26 +841,26 @@ module Test =
 
     let l05 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(23, 0, 23);
          (23, 0, 24)]
 
     let l05 =
-      IntIntLTS3Dot.parse "test/l05.dot"
+      IntIntLTSDotParse.parse "test/l05.dot"
 
     let l06 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(25, 0, 25)]
 
     (* l07 and l08 correspond to Exercise 3.5 in Reactive Systems. *)
 
     let l07 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(26, 0, 27);
          (26, 0, 28);
          (27, 0, 29);
@@ -886,8 +871,8 @@ module Test =
 
     let l08 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(31, 0, 32);
          (31, 0, 34);
          (32, 0, 33);
@@ -898,8 +883,8 @@ module Test =
 
     let l09 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(26, 0, 28);
          (26, 0, 27);
          (28, 0, 29);
@@ -910,8 +895,8 @@ module Test =
 
     let l10 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(31, 0, 32);
          (31, 0, 34);
          (32, 0, 33);
@@ -925,21 +910,21 @@ module Test =
 
     let l11 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(38, 0, 38)]
 
     let l12 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(39, 0, 39)]
 
     (* l13 and l14 correspond to the file 0alternation.pdf. *)
     let l13 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(40, 0, 41);
          (41, 1, 42);
          (41, 0, 43);
@@ -947,8 +932,8 @@ module Test =
 
     let l14 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(45, 0, 46);
          (45, 0, 47);
          (46, 1, 48);
@@ -958,8 +943,8 @@ module Test =
 
     let l15 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(52, 0, 53);
          (52, 0, 54);
          (53, 1, 55);
@@ -969,20 +954,20 @@ module Test =
 
     let l16 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(59, 0, 60)]
 
     let l17 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        (IntIntLTS3.add_vertex IntIntLTS3.empty 61)
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        (IntIntLTS.add_vertex IntIntLTS.empty 61)
         []
 
     let l18 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(62, 0, 63);
          (63, 0, 64);
          (64, 1, 65);
@@ -990,8 +975,8 @@ module Test =
 
     let l19 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(62, 0, 63);
          (63, 0, 64);
          (64, 1, 65);
@@ -1001,8 +986,8 @@ module Test =
 
     let l20 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(69, 0, 70);
          (69, 0, 71);
          (70, 0, 72);
@@ -1013,8 +998,8 @@ module Test =
 
     let l21 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(69, 0, 70);
          (69, 0, 71);
          (70, 0, 72);
@@ -1026,8 +1011,8 @@ module Test =
 
     let l22 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(69, 0, 70);
          (69, 0, 71);
          (70, 0, 72);
@@ -1037,8 +1022,8 @@ module Test =
 
     let l23 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(78, 0, 79);
          (79, 0, 80);
          (80, 1, 81);
@@ -1049,23 +1034,23 @@ module Test =
 
     let l24 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(86, 0, 87);
 	 (87, 1, 88);
 	 (87, 2, 89)]
 
     let l25 =
       List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS3.add_edge_e g (IntIntLTS3.E.create src label dst))
-        IntIntLTS3.empty
+        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
+        IntIntLTS.empty
         [(90, 0, 91);
 	 (90, 0, 92);
 	 (91, 1, 93);
 	 (92, 2, 94)]
 
     let () =
-      IntIntLTS3.iter_vertex
+      IntIntLTS.iter_vertex
         (function v ->
           Printf.printf
             "v = %s\n"
@@ -1073,19 +1058,19 @@ module Test =
         )
         l04
 
-    module IntIntLTS3NK_Rel = NK_Rel (IntIntLTS3)
+    module IntIntLTSNK_Rel = NK_Rel (IntIntLTS)
 
     let test120 =
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
 	  l03
 	  l04
 	  0
 	  14
 	  3
 	  4
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
 	  ()
       with
       | false -> "test120 passed"
@@ -1098,15 +1083,15 @@ module Test =
     let test121 =  (* Shibashis: Challenger chooses now l04 in the
     first round *)
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
 	  l04
 	  l03
 	  14
 	  0
 	  3
 	  4
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
 	  ()
       with
       | true -> "test121 passed"
@@ -1114,15 +1099,15 @@ module Test =
 
     let test122 =
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
 	  l03
 	  l04
 	  0
 	  14
 	  2
 	  4
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
 	  ()
       with
       | true -> "test122 passed"
@@ -1135,15 +1120,15 @@ module Test =
     let test123 =  (* Shibashis: Challenger chooses now l04 in the
     first round *)
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
 	  l04
 	  l03
 	  14
 	  0
 	  2
 	  4
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
 	  ()
       with
       | true -> "test123 passed"
@@ -1151,15 +1136,15 @@ module Test =
 
     let test124 =
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
 	  l03
 	  l04
 	  0
 	  14
 	  3
 	  6
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
 	  ()
       with
       | false -> "test124 passed"
@@ -1172,15 +1157,15 @@ module Test =
     let test125 =  (* Shibashis: Challenger chooses now l04 in the
     first round *)
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
 	  l04
 	  l03
 	  14
 	  0
 	  3
 	  6
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
 	  ()
       with
       | true -> "test125 passed"
@@ -1188,15 +1173,15 @@ module Test =
 
     let test126 =
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
 	  l03
 	  l04
 	  0
 	  14
 	  2
 	  6
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
 	  ()
       with
       | true -> "test126 passed"
@@ -1209,15 +1194,15 @@ module Test =
     let test127 =  (* Shibashis: Challenger chooses now l04 in the
     first round *)
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
 	  l04
 	  l03
 	  14
 	  0
 	  2
 	  6
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
 	  ()
       with
       | true -> "test127 passed"
@@ -1225,15 +1210,15 @@ module Test =
 
     let test128 =
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
 	  l05
 	  l06
 	  23
 	  25
 	  1
 	  2
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
 	  ()
       with
       | false -> "test128 passed"
@@ -1241,15 +1226,15 @@ module Test =
 
     let test129 =
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
           l05
           l06
           23
           25
           0
           2
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
           ()
       with
       | true -> "test129 passed"
@@ -1257,15 +1242,15 @@ module Test =
 
     let test130 =
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
           l05
           l06
           23
           25
           0
           5
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
           ()
       with
       | true -> "test130 passed"
@@ -1273,15 +1258,15 @@ module Test =
 
     let test131 =
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
           l06
           l05
           25
           23
           1
           2
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
           ()
       with
       | true -> "test131 passed"
@@ -1289,15 +1274,15 @@ module Test =
 
     let test132 =
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
           l06
           l05
           25
           23
           2
           3
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
           ()
       with
       | false -> "test132 passed"
@@ -1305,15 +1290,15 @@ module Test =
 
     let test133 =
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
           l06
           l05
           25
           23
           4
           10
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
           ()
       with
       | false -> "test133 passed"
@@ -1321,15 +1306,15 @@ module Test =
 
     let test134 =
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
           l07
           l08
           26
           31
           10
           20
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
           ()
       with
       | true -> "test134 passed"
@@ -1337,41 +1322,41 @@ module Test =
 
     let test135 =
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
           l08
           l07
           32
           28
           0
           1
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
           ()
       with
       | false -> "test135 passed"
       | true -> "test135 failed"
 
     let f01 =
-      IntIntLTS3NK_Rel.DIAMOND
+      IntIntLTSNK_Rel.DIAMOND
         (0,
-         IntIntLTS3NK_Rel.BOX
+         IntIntLTSNK_Rel.BOX
            (1,
-            IntIntLTS3NK_Rel.DIAMOND
+            IntIntLTSNK_Rel.DIAMOND
               (2,
-               IntIntLTS3NK_Rel.AND [])))
+               IntIntLTSNK_Rel.AND [])))
 
     let f02 =
-      IntIntLTS3NK_Rel.BOX
+      IntIntLTSNK_Rel.BOX
         (0,
-         IntIntLTS3NK_Rel.DIAMOND
+         IntIntLTSNK_Rel.DIAMOND
            (1,
-            IntIntLTS3NK_Rel.BOX
+            IntIntLTSNK_Rel.BOX
               (2,
-               IntIntLTS3NK_Rel.OR [])))
+               IntIntLTSNK_Rel.OR [])))
 
     let test136 =
       if
-        (IntIntLTS3NK_Rel.negation f01 = f02)
+        (IntIntLTSNK_Rel.negation f01 = f02)
       then
         "test136 passed"
       else
@@ -1379,7 +1364,7 @@ module Test =
 
     let test137 =
       if
-        (IntIntLTS3NK_Rel.negation f02 = f01)
+        (IntIntLTSNK_Rel.negation f02 = f01)
       then
         "test137 passed"
       else
@@ -1388,54 +1373,54 @@ module Test =
     let f03 =
       (let
           sf01 =
-         IntIntLTS3NK_Rel.DIAMOND
+         IntIntLTSNK_Rel.DIAMOND
            (1,
-            IntIntLTS3NK_Rel.BOX
+            IntIntLTSNK_Rel.BOX
               (2,
-               IntIntLTS3NK_Rel.DIAMOND
+               IntIntLTSNK_Rel.DIAMOND
                  (3,
-                  IntIntLTS3NK_Rel.AND [])))
+                  IntIntLTSNK_Rel.AND [])))
        in
        let
            sf02 =
-         IntIntLTS3NK_Rel.AND
-           [IntIntLTS3NK_Rel.BOX (4, IntIntLTS3NK_Rel.OR []);
-            IntIntLTS3NK_Rel.BOX (5, IntIntLTS3NK_Rel.OR [])]
+         IntIntLTSNK_Rel.AND
+           [IntIntLTSNK_Rel.BOX (4, IntIntLTSNK_Rel.OR []);
+            IntIntLTSNK_Rel.BOX (5, IntIntLTSNK_Rel.OR [])]
        in
-       IntIntLTS3NK_Rel.BOX
+       IntIntLTSNK_Rel.BOX
          (0,
-          IntIntLTS3NK_Rel.OR
+          IntIntLTSNK_Rel.OR
             [sf01;
-             IntIntLTS3NK_Rel.BOX
+             IntIntLTSNK_Rel.BOX
                (1, sf02)]))
 
     let f04 =
       (let
           sf01 =
-         IntIntLTS3NK_Rel.BOX
+         IntIntLTSNK_Rel.BOX
            (1,
-            IntIntLTS3NK_Rel.DIAMOND
+            IntIntLTSNK_Rel.DIAMOND
               (2,
-               IntIntLTS3NK_Rel.BOX
+               IntIntLTSNK_Rel.BOX
                  (3,
-                  IntIntLTS3NK_Rel.OR [])))
+                  IntIntLTSNK_Rel.OR [])))
        in
        let
            sf02 =
-         IntIntLTS3NK_Rel.OR
-           [IntIntLTS3NK_Rel.DIAMOND (4, IntIntLTS3NK_Rel.AND []);
-            IntIntLTS3NK_Rel.DIAMOND (5, IntIntLTS3NK_Rel.AND [])]
+         IntIntLTSNK_Rel.OR
+           [IntIntLTSNK_Rel.DIAMOND (4, IntIntLTSNK_Rel.AND []);
+            IntIntLTSNK_Rel.DIAMOND (5, IntIntLTSNK_Rel.AND [])]
        in
-       IntIntLTS3NK_Rel.DIAMOND
+       IntIntLTSNK_Rel.DIAMOND
          (0,
-          IntIntLTS3NK_Rel.AND
+          IntIntLTSNK_Rel.AND
             [sf01;
-             IntIntLTS3NK_Rel.DIAMOND
+             IntIntLTSNK_Rel.DIAMOND
                (1, sf02)]))
 
     let test138 =
       if
-        (IntIntLTS3NK_Rel.negation f03 = f04)
+        (IntIntLTSNK_Rel.negation f03 = f04)
       then
         "test138 passed"
       else
@@ -1443,7 +1428,7 @@ module Test =
 
     let test139 =
       if
-        (IntIntLTS3NK_Rel.negation f04 = f03)
+        (IntIntLTSNK_Rel.negation f04 = f03)
       then
         "test139 passed"
       else
@@ -1451,15 +1436,15 @@ module Test =
 
     let test140 =
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
           l13
           l14
           40
           45
           2
           5
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
           ()
       with
       | false -> "test140 passed"
@@ -1467,15 +1452,15 @@ module Test =
 
     let test141 =
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
           l15
           l14
           52
           45
           2
           5
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
           ()
       with
       | false -> "test141 passed"
@@ -1483,15 +1468,15 @@ module Test =
 
     let test142 =
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
           l16
           l17
           59
           61
           2
           5
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
           ()
       with
       | false -> "test142 passed"
@@ -1499,15 +1484,15 @@ module Test =
 
     let test143 =
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
           l18
           l20
           62
           69
           2
           5
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
           ()
       with
       | false -> "test143 passed"
@@ -1515,15 +1500,15 @@ module Test =
 
     let test144 =
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
           l18
           l21
           62
           69
           2
           5
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
           ()
       with
       | false -> "test144 passed"
@@ -1531,15 +1516,15 @@ module Test =
 
     let test145 =
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
           l19
           l20
           62
           69
           2
           5
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
           ()
       with
       | false -> "test145 passed"
@@ -1547,22 +1532,22 @@ module Test =
 
     let test146 =
       match
-        IntIntLTS3NK_Rel.checknkRel
+        IntIntLTSNK_Rel.checknkRel
           l18
           l22
           62
           69
           2
           5
-          (IntIntLTS3NK_Rel.create_yes_table ())
-          (IntIntLTS3NK_Rel.create_no_table ())
+          (IntIntLTSNK_Rel.create_yes_table ())
+          (IntIntLTSNK_Rel.create_no_table ())
           ()
       with
       | false -> "test146 passed"
       | true -> "test146 failed"
 
     let example_sim_eq =
-      IntIntLTS3NK_Rel.get_distinguishing_formulae2
+      IntIntLTSNK_Rel.get_distinguishing_formulae2
 	l24
 	l25
 	86
@@ -1571,7 +1556,7 @@ module Test =
 	5
 
     let example01 = 
-      IntIntLTS3NK_Rel.get_distinguishing_formulae1
+      IntIntLTSNK_Rel.get_distinguishing_formulae1
 	l03
 	l04
 	0
@@ -1580,7 +1565,7 @@ module Test =
 	5
 
     let example02 = 
-      IntIntLTS3NK_Rel.get_distinguishing_formulae1
+      IntIntLTSNK_Rel.get_distinguishing_formulae1
 	l07
 	l08
 	26
@@ -1589,7 +1574,7 @@ module Test =
 	20
 
     let example03 = 
-      IntIntLTS3NK_Rel.get_distinguishing_formulae1
+      IntIntLTSNK_Rel.get_distinguishing_formulae1
 	l05
 	l06
 	23
@@ -1598,7 +1583,7 @@ module Test =
 	5
 
     let example04 = 
-      IntIntLTS3NK_Rel.get_distinguishing_formulae1
+      IntIntLTSNK_Rel.get_distinguishing_formulae1
 	l18
 	l20
 	62
@@ -1607,7 +1592,7 @@ module Test =
 	5
 
     let example05 = 
-      IntIntLTS3NK_Rel.get_distinguishing_formulae1
+      IntIntLTSNK_Rel.get_distinguishing_formulae1
 	l18
 	l22
 	62
@@ -1616,7 +1601,7 @@ module Test =
 	5
 
     let example06 = 
-      IntIntLTS3NK_Rel.get_distinguishing_formulae2
+      IntIntLTSNK_Rel.get_distinguishing_formulae2
 	l19
 	l22
 	62
