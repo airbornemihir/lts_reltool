@@ -139,49 +139,68 @@ module HM_Formula =
         | AND formula_list -> OR (List.map negation formula_list)
         | OR formula_list -> AND (List.map negation formula_list)
 
-      let rec minimise formula =
-        let
-            formula =
-          match
-            formula
-          with
-          | DIAMOND (a, formula) -> DIAMOND (a, minimise formula)
-          | BOX (a, formula) -> BOX (a, minimise formula)
-          | AND formula_list ->
-            let
-                formula_list =
-              List.map minimise formula_list
-            in
-            if
-              List.mem (OR []) formula_list
-            then
-              OR []
-            else
-              (match
-                  (List.filter (Pervasives.(<>) (AND []))
-        formula_list)
-               with
-               | [formula] -> formula
-               | formula_list -> AND formula_list)
-          | OR formula_list ->
-            let
-                formula_list =
-              List.map minimise formula_list
-            in
-            if
-              List.mem (AND []) formula_list
-            then
-              AND []
-            else
-              (match
-                  (List.filter (Pervasives.(<>) (OR []))
-        formula_list)
-               with
-               | [formula] -> formula
-               | formula_list -> OR formula_list)
+      let rec minimise (formula:hm_formula):hm_formula =
+        let f e extract_e terminator formula_list =
+          let
+              (should_terminate, formula_list) =
+            List.fold_left
+              (fun (should_terminate, formula_list) formula ->
+                if
+                  should_terminate
+                then
+                  (should_terminate, formula_list)
+                else
+                  (let
+                      formula = minimise formula
+                  in
+                  if
+                    formula = terminator
+                  then
+                    (true, [])
+                  else
+                    (false,
+                     match
+                       (extract_e formula)
+                     with
+                     | Some partial_formula_list ->
+                       partial_formula_list @ formula_list
+                     | None ->
+                       formula::formula_list)))
+              (false, [])
+              formula_list
+          in
+          if
+            should_terminate
+          then
+            terminator
+          else
+            match
+              formula_list
+            with
+            | [formula] -> formula
+            | formula_list -> e formula_list
         in
-        formula
-          
+        match
+          formula
+        with
+        | DIAMOND (a, formula) -> DIAMOND (a, minimise formula)
+        | BOX (a, formula) -> BOX (a, minimise formula)
+        | AND formula_list ->
+          f
+            (function formula_list -> AND formula_list)
+            (function
+            | AND formula_list -> Some formula_list
+            | _ -> None)
+            (OR [])
+            formula_list
+        | OR formula_list ->
+          f
+            (function formula_list -> OR formula_list)
+            (function
+            | OR formula_list -> Some formula_list
+            | _ -> None)
+            (AND [])
+            formula_list
      end)
 
 module NK_Rel =
@@ -1685,5 +1704,49 @@ module Test =
         "test148 passed"
       else
         "test148 failed"
+
+    let test149 =
+      if
+        IntIntLTSNK_Rel.AND
+                 [IntIntLTSNK_Rel.DIAMOND (0, IntIntLTSNK_Rel.AND []);
+                  IntIntLTSNK_Rel.DIAMOND (1, IntIntLTSNK_Rel.AND []);
+                  IntIntLTSNK_Rel.DIAMOND (2, IntIntLTSNK_Rel.AND []);
+                  IntIntLTSNK_Rel.DIAMOND (3, IntIntLTSNK_Rel.AND [])]
+          = 
+        IntIntLTSNK_Rel.minimise
+          (IntIntLTSNK_Rel.AND
+             [IntIntLTSNK_Rel.AND
+                 [IntIntLTSNK_Rel.DIAMOND (3, IntIntLTSNK_Rel.AND []);
+                  IntIntLTSNK_Rel.DIAMOND (2, IntIntLTSNK_Rel.AND [])];
+              IntIntLTSNK_Rel.AND
+                 [IntIntLTSNK_Rel.DIAMOND (1, IntIntLTSNK_Rel.AND []);
+                  IntIntLTSNK_Rel.DIAMOND (0, IntIntLTSNK_Rel.AND [])]
+             ])
+      then
+        "test149 passed"
+      else
+        "test149 failed"
+
+    let test150 =
+      if
+        IntIntLTSNK_Rel.OR
+                 [IntIntLTSNK_Rel.BOX (0, IntIntLTSNK_Rel.OR []);
+                  IntIntLTSNK_Rel.BOX (1, IntIntLTSNK_Rel.OR []);
+                  IntIntLTSNK_Rel.BOX (2, IntIntLTSNK_Rel.OR []);
+                  IntIntLTSNK_Rel.BOX (3, IntIntLTSNK_Rel.OR [])]
+          = 
+        IntIntLTSNK_Rel.minimise
+          (IntIntLTSNK_Rel.OR
+             [IntIntLTSNK_Rel.OR
+                 [IntIntLTSNK_Rel.BOX (3, IntIntLTSNK_Rel.OR []);
+                  IntIntLTSNK_Rel.BOX (2, IntIntLTSNK_Rel.OR [])];
+              IntIntLTSNK_Rel.OR
+                 [IntIntLTSNK_Rel.BOX (1, IntIntLTSNK_Rel.OR []);
+                  IntIntLTSNK_Rel.BOX (0, IntIntLTSNK_Rel.OR [])]
+             ])
+      then
+        "test150 passed"
+      else
+        "test150 failed"
 
       end)
