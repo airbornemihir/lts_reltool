@@ -911,28 +911,10 @@ module Test =
     (* l07 and l08 correspond to Exercise 3.5 in Reactive Systems. *)
 
     let l07 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(26, 0, 27);
-         (26, 0, 28);
-         (27, 0, 29);
-         (27, 1, 30);
-         (28, 0, 30);
-         (29, 0, 26);
-         (30, 0, 26)]
+      IntIntLTSDotParse.parse "test/l07.dot"
 
     let l08 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(31, 0, 32);
-         (31, 0, 34);
-         (32, 0, 33);
-         (32, 1, 33);
-         (33, 0, 31);
-         (34, 0, 35);
-         (35, 0, 31)]
+      IntIntLTSDotParse.parse "test/l08.dot"
 
     let l09 =
       List.fold_left
