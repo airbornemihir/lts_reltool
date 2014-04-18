@@ -798,6 +798,47 @@ module IntE =
 
 module IntIntLTS = LTS_Functor (IntV) (IntE)
 
+module IntIntLTSDot = LTS_Dot_Functor (IntIntLTS)
+
+module IntIntLTSDotParse =
+  Dot.Parse
+    (Builder.P (IntIntLTS))
+    (struct
+      let node (id, _) _ =
+        match
+          id
+        with
+        | Dot_ast.Number s
+        | Dot_ast.Ident s
+        | Dot_ast.Html s
+        | Dot_ast.String s -> (int_of_string s)
+
+      let edge attr_list =
+        try
+          (let
+              (_, id) =
+             List.find
+               (function
+               | (Dot_ast.Number s, _)
+               | (Dot_ast.Ident s, _)
+               | (Dot_ast.Html s, _)
+               | (Dot_ast.String s, _) -> s = "action")
+               (List.concat attr_list)
+           in
+           match
+             id
+           with
+           | Some (Dot_ast.Number s)
+           | Some (Dot_ast.Ident s)
+           | Some (Dot_ast.Html s)
+           | Some (Dot_ast.String s) -> (int_of_string s)
+           | None -> raise Not_found)
+        with
+        | Not_found -> IntE.default
+     end)
+
+module IntIntLTSNK_Rel = NK_Rel (IntIntLTS)
+
 module Test =
   (struct
 
@@ -828,8 +869,6 @@ module Test =
       with
       | Invalid_argument _ -> "test95 passed"
 
-    module IntIntLTSDot = LTS_Dot_Functor (IntIntLTS)
-
     let test96 =
       try
         match
@@ -855,42 +894,6 @@ module Test =
         [(0, 0, 1); (1, 0, 1); (2, 1, 3); (3, 1, 4); (4, 1, 2); (5, 0, 0);
          (6, 0, 3); (5, 1, 6)]
 
-    module IntIntLTSDotParse =
-      Dot.Parse
-        (Builder.P (IntIntLTS))
-        (struct
-          let node (id, _) _ =
-            match
-              id
-            with
-            | Dot_ast.Number s
-            | Dot_ast.Ident s
-            | Dot_ast.Html s
-            | Dot_ast.String s -> (int_of_string s)
-
-          let edge attr_list =
-            try
-              (let
-                  (_, id) =
-                 List.find
-                   (function
-                       | (Dot_ast.Number s, _)
-                       | (Dot_ast.Ident s, _)
-                       | (Dot_ast.Html s, _)
-                       | (Dot_ast.String s, _) -> s = "action")
-                   (List.concat attr_list)
-              in
-              match
-                id
-              with
-              | Some (Dot_ast.Number s)
-              | Some (Dot_ast.Ident s)
-              | Some (Dot_ast.Html s)
-              | Some (Dot_ast.String s) -> (int_of_string s)
-              | None -> raise Not_found)
-            with
-            | Not_found -> IntE.default
-         end)
 
 
     (* l03 and l04 correspond to 3alternations.pdf *)
@@ -1143,8 +1146,6 @@ module Test =
             (string_of_int v)
         )
         l04
-
-    module IntIntLTSNK_Rel = NK_Rel (IntIntLTS)
 
     let test120 =
       match
@@ -1796,5 +1797,19 @@ module Test =
                IntIntLTSNK_Rel.OR
                  [IntIntLTSNK_Rel.BOX(4, IntIntLTSNK_Rel.OR []);
                   IntIntLTSNK_Rel.BOX(5, IntIntLTSNK_Rel.OR [])]))]
+
+    let f14 =
+      IntIntLTSNK_Rel.OR
+        [IntIntLTSNK_Rel.BOX (0, IntIntLTSNK_Rel.OR []);
+         IntIntLTSNK_Rel.AND
+           [IntIntLTSNK_Rel.DIAMOND(1, IntIntLTSNK_Rel.AND []);
+            IntIntLTSNK_Rel.OR []];
+         IntIntLTSNK_Rel.BOX
+           (2,
+            IntIntLTSNK_Rel.BOX
+              (3,
+               IntIntLTSNK_Rel.AND
+                 [IntIntLTSNK_Rel.DIAMOND(4, IntIntLTSNK_Rel.AND []);
+                  IntIntLTSNK_Rel.DIAMOND(5, IntIntLTSNK_Rel.AND [])]))]
 
       end)
