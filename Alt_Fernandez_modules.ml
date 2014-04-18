@@ -201,6 +201,30 @@ module HM_Formula =
             | _ -> None)
             (AND [])
             formula_list
+
+      let rec translate formula =
+        match
+          formula
+        with
+        | DIAMOND (a, formula) ->
+          "<" ^ (LTS.A.action_name a) ^ ">" ^ (translate formula)
+        | BOX (a, formula) ->
+          "[" ^ (LTS.A.action_name a) ^ "]" ^ (translate formula)
+        | AND [] -> "tt"
+        | AND formula_list ->
+          "(" ^
+            (String.concat
+               " && "
+               (List.map translate formula_list))
+          ^ ")"
+        | OR [] -> "ff"
+        | OR formula_list ->
+          "(" ^ 
+            (String.concat
+               " || "
+               (List.map translate formula_list))
+          ^ ")"
+
      end)
 
 module NK_Rel =
@@ -1671,82 +1695,106 @@ module Test =
 	2
 	5
 
+    let f05 = IntIntLTSNK_Rel.DIAMOND (0, IntIntLTSNK_Rel.OR [])
+
+    let f06 =
+      (IntIntLTSNK_Rel.AND
+         [IntIntLTSNK_Rel.AND [];
+          IntIntLTSNK_Rel.DIAMOND
+            (0,
+             IntIntLTSNK_Rel.AND
+               [IntIntLTSNK_Rel.DIAMOND (0, IntIntLTSNK_Rel.AND []);
+                IntIntLTSNK_Rel.OR []])])
+
     let test147 =
       if
-        IntIntLTSNK_Rel.DIAMOND (0, IntIntLTSNK_Rel.OR [])
-          = 
-        IntIntLTSNK_Rel.minimise
-          (IntIntLTSNK_Rel.AND
-             [IntIntLTSNK_Rel.AND [];
-              IntIntLTSNK_Rel.DIAMOND
-                (0,
-                 IntIntLTSNK_Rel.AND
-                   [IntIntLTSNK_Rel.DIAMOND (0, IntIntLTSNK_Rel.AND []);
-                    IntIntLTSNK_Rel.OR []])])
+        f05 = IntIntLTSNK_Rel.minimise f06
       then
         "test147 passed"
       else
         "test147 failed"
 
+    let f07 = IntIntLTSNK_Rel.BOX (0, IntIntLTSNK_Rel.AND [])
+
+    let f08 =
+      (IntIntLTSNK_Rel.OR
+         [IntIntLTSNK_Rel.OR [];
+          IntIntLTSNK_Rel.BOX
+            (0,
+             IntIntLTSNK_Rel.OR
+               [IntIntLTSNK_Rel.BOX (0, IntIntLTSNK_Rel.OR []);
+                IntIntLTSNK_Rel.AND []])])
+
     let test148 =
       if
-        IntIntLTSNK_Rel.BOX (0, IntIntLTSNK_Rel.AND [])
-          = 
-        IntIntLTSNK_Rel.minimise
-          (IntIntLTSNK_Rel.OR
-             [IntIntLTSNK_Rel.OR [];
-              IntIntLTSNK_Rel.BOX
-                (0,
-                 IntIntLTSNK_Rel.OR
-                   [IntIntLTSNK_Rel.BOX (0, IntIntLTSNK_Rel.OR []);
-                    IntIntLTSNK_Rel.AND []])])
+        f07 = IntIntLTSNK_Rel.minimise f08
       then
         "test148 passed"
       else
         "test148 failed"
 
+    let f09 =
+      IntIntLTSNK_Rel.AND
+        [IntIntLTSNK_Rel.DIAMOND (0, IntIntLTSNK_Rel.AND []);
+         IntIntLTSNK_Rel.DIAMOND (1, IntIntLTSNK_Rel.AND []);
+         IntIntLTSNK_Rel.DIAMOND (2, IntIntLTSNK_Rel.AND []);
+         IntIntLTSNK_Rel.DIAMOND (3, IntIntLTSNK_Rel.AND [])]
+
+    let f10 =
+      (IntIntLTSNK_Rel.AND
+         [IntIntLTSNK_Rel.AND
+             [IntIntLTSNK_Rel.DIAMOND (3, IntIntLTSNK_Rel.AND []);
+              IntIntLTSNK_Rel.DIAMOND (2, IntIntLTSNK_Rel.AND [])];
+          IntIntLTSNK_Rel.AND
+            [IntIntLTSNK_Rel.DIAMOND (1, IntIntLTSNK_Rel.AND []);
+             IntIntLTSNK_Rel.DIAMOND (0, IntIntLTSNK_Rel.AND [])]
+         ])
+
     let test149 =
       if
-        IntIntLTSNK_Rel.AND
-                 [IntIntLTSNK_Rel.DIAMOND (0, IntIntLTSNK_Rel.AND []);
-                  IntIntLTSNK_Rel.DIAMOND (1, IntIntLTSNK_Rel.AND []);
-                  IntIntLTSNK_Rel.DIAMOND (2, IntIntLTSNK_Rel.AND []);
-                  IntIntLTSNK_Rel.DIAMOND (3, IntIntLTSNK_Rel.AND [])]
-          = 
-        IntIntLTSNK_Rel.minimise
-          (IntIntLTSNK_Rel.AND
-             [IntIntLTSNK_Rel.AND
-                 [IntIntLTSNK_Rel.DIAMOND (3, IntIntLTSNK_Rel.AND []);
-                  IntIntLTSNK_Rel.DIAMOND (2, IntIntLTSNK_Rel.AND [])];
-              IntIntLTSNK_Rel.AND
-                 [IntIntLTSNK_Rel.DIAMOND (1, IntIntLTSNK_Rel.AND []);
-                  IntIntLTSNK_Rel.DIAMOND (0, IntIntLTSNK_Rel.AND [])]
-             ])
+        f09 = IntIntLTSNK_Rel.minimise f10
       then
         "test149 passed"
       else
         "test149 failed"
 
+    let f11 =
+      IntIntLTSNK_Rel.OR
+        [IntIntLTSNK_Rel.BOX (0, IntIntLTSNK_Rel.OR []);
+         IntIntLTSNK_Rel.BOX (1, IntIntLTSNK_Rel.OR []);
+         IntIntLTSNK_Rel.BOX (2, IntIntLTSNK_Rel.OR []);
+         IntIntLTSNK_Rel.BOX (3, IntIntLTSNK_Rel.OR [])]
+
+    let f12 =
+      (IntIntLTSNK_Rel.OR
+         [IntIntLTSNK_Rel.OR
+             [IntIntLTSNK_Rel.BOX (3, IntIntLTSNK_Rel.OR []);
+              IntIntLTSNK_Rel.BOX (2, IntIntLTSNK_Rel.OR [])];
+          IntIntLTSNK_Rel.OR
+            [IntIntLTSNK_Rel.BOX (1, IntIntLTSNK_Rel.OR []);
+             IntIntLTSNK_Rel.BOX (0, IntIntLTSNK_Rel.OR [])]
+         ])
+
     let test150 =
       if
-        IntIntLTSNK_Rel.OR
-                 [IntIntLTSNK_Rel.BOX (0, IntIntLTSNK_Rel.OR []);
-                  IntIntLTSNK_Rel.BOX (1, IntIntLTSNK_Rel.OR []);
-                  IntIntLTSNK_Rel.BOX (2, IntIntLTSNK_Rel.OR []);
-                  IntIntLTSNK_Rel.BOX (3, IntIntLTSNK_Rel.OR [])]
-          = 
-        IntIntLTSNK_Rel.minimise
-          (IntIntLTSNK_Rel.OR
-             [IntIntLTSNK_Rel.OR
-                 [IntIntLTSNK_Rel.BOX (3, IntIntLTSNK_Rel.OR []);
-                  IntIntLTSNK_Rel.BOX (2, IntIntLTSNK_Rel.OR [])];
-              IntIntLTSNK_Rel.OR
-                 [IntIntLTSNK_Rel.BOX (1, IntIntLTSNK_Rel.OR []);
-                  IntIntLTSNK_Rel.BOX (0, IntIntLTSNK_Rel.OR [])]
-             ])
+        f11 = IntIntLTSNK_Rel.minimise f12
       then
         "test150 passed"
       else
         "test150 failed"
+
+    let f13 =
+      IntIntLTSNK_Rel.AND
+        [IntIntLTSNK_Rel.DIAMOND (0, IntIntLTSNK_Rel.AND []);
+         IntIntLTSNK_Rel.OR
+           [IntIntLTSNK_Rel.BOX(1, IntIntLTSNK_Rel.OR []);
+            IntIntLTSNK_Rel.AND []];
+         IntIntLTSNK_Rel.DIAMOND
+           (2,
+            IntIntLTSNK_Rel.DIAMOND
+              (3,
+               IntIntLTSNK_Rel.OR
+                 [IntIntLTSNK_Rel.BOX(4, IntIntLTSNK_Rel.OR []);
+                  IntIntLTSNK_Rel.BOX(5, IntIntLTSNK_Rel.OR [])]))]
 
       end)
