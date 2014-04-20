@@ -894,55 +894,19 @@ module Test =
         [(0, 0, 1); (1, 0, 1); (2, 1, 3); (3, 1, 4); (4, 1, 2); (5, 0, 0);
          (6, 0, 3); (5, 1, 6)]
 
-
-
     (* l03 and l04 correspond to 3alternations.pdf *)
+
     let l03 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(0, 0, 1);
-         (0, 0, 2);
-         (1, 1, 3);
-         (2, 1, 4);
-         (2, 1, 5);
-         (3, 2, 6);
-         (3, 2, 7);
-         (4, 2, 8);
-         (5, 2, 9);
-         (5, 2, 10);
-         (6, 3, 11);
-         (8, 3, 12);
-         (9, 3, 13)]
+      IntIntLTSDotParse.parse "test/l03.dot"
 
     let l04 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(14, 0, 15);
-         (15, 1, 16);
-         (15, 1, 17);
-         (16, 2, 18);
-         (17, 2, 19);
-         (17, 2, 20);
-         (18, 3, 21);
-         (19, 3, 22)]
-
-    let l05 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(23, 0, 23);
-         (23, 0, 24)]
+      IntIntLTSDotParse.parse "test/l04.dot"
 
     let l05 =
       IntIntLTSDotParse.parse "test/l05.dot"
 
     let l06 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(25, 0, 25)]
+      IntIntLTSDotParse.parse "test/l06.dot"
 
     (* l07 and l08 correspond to Exercise 3.5 in Reactive Systems. *)
 
