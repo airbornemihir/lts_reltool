@@ -1813,3 +1813,64 @@ module Test =
                   IntIntLTSNK_Rel.DIAMOND(5, IntIntLTSNK_Rel.AND [])]))]
 
       end)
+
+let _ =
+  let
+      n = ref (-1)
+  in
+  let
+      k = ref (-1)
+  in
+  let
+      lts1 = ref ""
+  in
+  let
+      lts2 = ref ""
+  in
+  let
+      p = ref (-1)
+  in
+  let
+      q = ref (-1)
+  in
+  let
+      () =
+    Arg.parse
+      [("-n", Arg.Set_int n, "number of alternations allowed.");
+       ("-k", Arg.Set_int k, "number of rounds allowed.");
+       ("--lts1", Arg.Set_string lts1, "lts where challenger begins.");
+       ("--lts2", Arg.Set_string lts2, "lts where defender begins.");
+       ("-p", Arg.Set_int p, "initial state in lts1.");
+       ("-q", Arg.Set_int q, "initial state in lts2.")]
+      (fun (argument:string) -> ())
+      "do not use"
+  in
+  let
+      () =
+    List.iter
+      (function ((n:int), (k:int), (f:IntIntLTSNK_Rel.hm_formula)) ->
+        Printf.printf
+          "n = %s, k = %s, f = %s\n"
+          (string_of_int n)
+          (string_of_int k)
+          (IntIntLTSNK_Rel.translate (IntIntLTSNK_Rel.minimise f)))
+      (IntIntLTSNK_Rel.get_distinguishing_formulae1
+         (IntIntLTSDotParse.parse !lts1)
+         (IntIntLTSDotParse.parse !lts2)
+         !p
+         !q
+         !n
+         !k)
+  in
+  let
+      () =
+    Printf.printf
+      "n = %s, k = %s, lts1 = %s, lts2 = %s, p = %s, q = %s\n"
+      (string_of_int !n)
+      (string_of_int !k)
+      !lts1
+      !lts2
+      (string_of_int !p)
+      (string_of_int !q)
+  in
+  exit 0;;
