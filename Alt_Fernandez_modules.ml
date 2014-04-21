@@ -942,10 +942,7 @@ module Test =
       IntIntLTSDotParse.parse "test/l16.dot"
 
     let l17 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        (IntIntLTS.add_vertex IntIntLTS.empty 61)
-        []
+      IntIntLTSDotParse.parse "test/l17.dot"
 
     let l18 =
       List.fold_left
