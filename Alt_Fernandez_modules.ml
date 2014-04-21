@@ -963,12 +963,7 @@ module Test =
       IntIntLTSDotParse.parse "test/l23.dot"
 
     let l24 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(86, 0, 87);
-	 (87, 1, 88);
-	 (87, 2, 89)]
+      IntIntLTSDotParse.parse "test/l24.dot"
 
     let l25 =
       List.fold_left
