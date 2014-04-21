@@ -1,0 +1,10 @@
+digraph {
+  69 -> 70 ["action" = 0]
+  69 -> 71 ["action" = 0]
+  70 -> 72 ["action" = 0]
+  71 -> 73 ["action" = 0]
+  72 -> 74 ["action" = 1]
+  73 -> 75 ["action" = 1]
+  73 -> 76 ["action" = 3]
+  75 -> 77 ["action" = 2]
+}
