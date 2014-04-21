@@ -303,16 +303,17 @@ module NK_Rel =
           no_table
           (* rel is some specific relation, can be a prebisim or a
              simulation equivalence or a bisimulation *)
-	  rel = 
-        let
-            () =
-          Printf.printf
-            "pushed p = %s, q = %s, n = %s, k = %s\n"
-            (LTS.vertex_name p)
-            (LTS.vertex_name q)
-            (string_of_int n)
-            (string_of_int k)
-        in
+	  rel =
+        (* Debugging output. *)
+        (* let *)
+        (*     () = *)
+        (*   Printf.printf *)
+        (*     "pushed p = %s, q = %s, n = %s, k = %s\n" *)
+        (*     (LTS.vertex_name p) *)
+        (*     (LTS.vertex_name q) *)
+        (*     (string_of_int n) *)
+        (*     (string_of_int k) *)
+        (* in *)
         let
             result = (
           if k = 0 then ([], yes_table, no_table)
@@ -584,20 +585,21 @@ module NK_Rel =
             )
         )
         in
-        let
-            () =
-          Printf.printf
-            "about to pop p = %s, q = %s, n = %s, k = %s\n, \
- defender_won = %s, \n"
-            (LTS.vertex_name p)
-            (LTS.vertex_name q)
-            (string_of_int n)
-            (string_of_int k)
-            (match result with
-            | ([], _, _) -> "true"
-            | (_, _, _) -> "false"
-            )
-        in
+        (* Debugging output. *)
+        (*        let *)
+        (*            () = *)
+        (*          Printf.printf *)
+        (*            "about to pop p = %s, q = %s, n = %s, k = %s\n, \ *)
+        (* defender_won = %s, \n" *)
+        (*            (LTS.vertex_name p) *)
+        (*            (LTS.vertex_name q) *)
+        (*            (string_of_int n) *)
+        (*            (string_of_int k) *)
+        (*            (match result with *)
+        (*            | ([], _, _) -> "true" *)
+        (*            | (_, _, _) -> "false" *)
+        (*            ) *)
+        (*        in *)
         result
 
       let rec
@@ -1102,14 +1104,15 @@ module Test =
 	 (91, 1, 93);
 	 (92, 2, 94)]
 
-    let () =
-      IntIntLTS.iter_vertex
-        (function v ->
-          Printf.printf
-            "v = %s\n"
-            (string_of_int v)
-        )
-        l04
+    (* Debugging output. *)
+    (* let () = *)
+    (*   IntIntLTS.iter_vertex *)
+    (*     (function v -> *)
+    (*       Printf.printf *)
+    (*         "v = %s\n" *)
+    (*         (string_of_int v) *)
+    (*     ) *)
+    (*     l04 *)
 
     let test120 =
       match
