@@ -966,13 +966,7 @@ module Test =
       IntIntLTSDotParse.parse "test/l24.dot"
 
     let l25 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(90, 0, 91);
-	 (90, 0, 92);
-	 (91, 1, 93);
-	 (92, 2, 94)]
+      IntIntLTSDotParse.parse "test/l25.dot"
 
     let () =
       IntIntLTS.iter_vertex
