@@ -930,24 +930,10 @@ module Test =
 
     (* l13 and l14 correspond to the file 0alternation.pdf. *)
     let l13 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(40, 0, 41);
-         (41, 1, 42);
-         (41, 0, 43);
-         (42, 2, 44)]
+      IntIntLTSDotParse.parse "test/l13.dot"
 
     let l14 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(45, 0, 46);
-         (45, 0, 47);
-         (46, 1, 48);
-         (47, 1, 49);
-         (47, 0, 50);
-         (48, 2, 51)]
+      IntIntLTSDotParse.parse "test/l14.dot"
 
     let l15 =
       List.fold_left
