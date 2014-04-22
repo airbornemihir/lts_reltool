@@ -1,0 +1,3 @@
+digraph {
+  25 -> 25 ["action" = 0]
+}
