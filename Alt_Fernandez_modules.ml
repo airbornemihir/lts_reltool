@@ -913,196 +913,62 @@ module Test =
     (* l07 and l08 correspond to Exercise 3.5 in Reactive Systems. *)
 
     let l07 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(26, 0, 27);
-         (26, 0, 28);
-         (27, 0, 29);
-         (27, 1, 30);
-         (28, 0, 30);
-         (29, 0, 26);
-         (30, 0, 26)]
+      IntIntLTSDotParse.parse "test/l07.dot"
 
     let l08 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(31, 0, 32);
-         (31, 0, 34);
-         (32, 0, 33);
-         (32, 1, 33);
-         (33, 0, 31);
-         (34, 0, 35);
-         (35, 0, 31)]
+      IntIntLTSDotParse.parse "test/l08.dot"
 
     let l09 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(26, 0, 28);
-         (26, 0, 27);
-         (28, 0, 29);
-         (28, 1, 30);
-         (27, 0, 30);
-         (29, 0, 26);
-         (30, 0, 26)]
+      IntIntLTSDotParse.parse "test/l09.dot"
 
     let l10 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(31, 0, 32);
-         (31, 0, 34);
-         (32, 0, 33);
-         (32, 1, 33);
-         (33, 0, 31);
-         (34, 0, 35);
-         (35, 0, 31);
-         (31, 0, 36);
-         (36, 0, 37);
-         (37, 0, 31)]
+      IntIntLTSDotParse.parse "test/l10.dot"
 
     let l11 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(38, 0, 38)]
+      IntIntLTSDotParse.parse "test/l11.dot"
 
     let l12 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(39, 0, 39)]
+      IntIntLTSDotParse.parse "test/l12.dot"
 
     (* l13 and l14 correspond to the file 0alternation.pdf. *)
     let l13 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(40, 0, 41);
-         (41, 1, 42);
-         (41, 0, 43);
-         (42, 2, 44)]
+      IntIntLTSDotParse.parse "test/l13.dot"
 
     let l14 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(45, 0, 46);
-         (45, 0, 47);
-         (46, 1, 48);
-         (47, 1, 49);
-         (47, 0, 50);
-         (48, 2, 51)]
+      IntIntLTSDotParse.parse "test/l14.dot"
 
     let l15 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(52, 0, 53);
-         (52, 0, 54);
-         (53, 1, 55);
-         (53, 0, 56);
-         (54, 2, 57);
-         (55, 2, 58)]
+      IntIntLTSDotParse.parse "test/l15.dot"
 
     let l16 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(59, 0, 60)]
+      IntIntLTSDotParse.parse "test/l16.dot"
 
     let l17 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        (IntIntLTS.add_vertex IntIntLTS.empty 61)
-        []
+      IntIntLTSDotParse.parse "test/l17.dot"
 
     let l18 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(62, 0, 63);
-         (63, 0, 64);
-         (64, 1, 65);
-         (65, 2, 66)]
+      IntIntLTSDotParse.parse "test/l18.dot"
 
     let l19 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(62, 0, 63);
-         (63, 0, 64);
-         (64, 1, 65);
-         (65, 2, 66);
-         (62, 0, 67);
-         (67, 1, 68)]
+      IntIntLTSDotParse.parse "test/l19.dot"
 
     let l20 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(69, 0, 70);
-         (69, 0, 71);
-         (70, 0, 72);
-         (71, 0, 73);
-         (72, 1, 74);
-         (73, 1, 75);
-         (73, 3, 76)]
+      IntIntLTSDotParse.parse "test/l20.dot"
 
     let l21 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(69, 0, 70);
-         (69, 0, 71);
-         (70, 0, 72);
-         (71, 0, 73);
-         (72, 1, 74);
-         (73, 1, 75);
-         (73, 3, 76);
-         (75, 2, 77)]
+      IntIntLTSDotParse.parse "test/l21.dot"
 
     let l22 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(69, 0, 70);
-         (69, 0, 71);
-         (70, 0, 72);
-         (71, 0, 73);
-         (73, 1, 75);
-         (73, 3, 76)]
+      IntIntLTSDotParse.parse "test/l22.dot"
 
     let l23 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(78, 0, 79);
-         (79, 0, 80);
-         (80, 1, 81);
-         (81, 2, 82);
-         (78, 0, 83);
-         (83, 0, 84);
-	 (84, 2, 85)]
+      IntIntLTSDotParse.parse "test/l23.dot"
 
     let l24 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(86, 0, 87);
-	 (87, 1, 88);
-	 (87, 2, 89)]
+      IntIntLTSDotParse.parse "test/l24.dot"
 
     let l25 =
-      List.fold_left
-        (fun g (src, label, dst) -> IntIntLTS.add_edge_e g (IntIntLTS.E.create src label dst))
-        IntIntLTS.empty
-        [(90, 0, 91);
-	 (90, 0, 92);
-	 (91, 1, 93);
-	 (92, 2, 94)]
+      IntIntLTSDotParse.parse "test/l25.dot"
 
     (* Debugging output. *)
     (* let () = *)

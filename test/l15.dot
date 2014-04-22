@@ -1,0 +1,8 @@
+digraph {
+  52 -> 53 ["action" = 0]
+  52 -> 54 ["action" = 0]
+  53 -> 55 ["action" = 1]
+  53 -> 56 ["action" = 0]
+  54 -> 57 ["action" = 2]
+  55 -> 58 ["action" = 2]
+}
