@@ -1697,33 +1697,36 @@ let _ =
        !k)
   in
   let
+      () = 
+    Printf.printf "%s\n"
+      (match
+	  result
+       with
+       | [] -> "The relation holds."
+       | _ -> "The relation does not hold."
+      )
+  in
+  let
       () =
-    if
-      !relation
-    then
-      Printf.printf "%s\n"
-	(match
-	    result
-	 with
-	 | [] -> "true"
-	 | _ -> "false"
-	)
-    else
-      (List.iter
-	 (function ((n:int), (k:int), (f:IntIntLTSNK_Rel.hm_formula)) ->
-	   if
-	     !pairs
-	   then
-	     Printf.printf
-               "n = %s, k = %s\n"
-               (string_of_int n)
-               (string_of_int k)
-	   else
-	     Printf.printf
-               "n = %s, k = %s, f = %s\n"
-               (string_of_int n)
-               (string_of_int k)
-               (IntIntLTSNK_Rel.translate (IntIntLTSNK_Rel.minimise f)))
-	 result)
+    (List.iter
+       (function ((n:int), (k:int), (f:IntIntLTSNK_Rel.hm_formula)) ->
+	 if
+	   !pairs
+	 then
+	   Printf.printf
+             "n = %s, k = %s\n"
+             (string_of_int n)
+             (string_of_int k)
+	 else if
+	     !relation
+	 then
+	   ()
+	 else
+	   Printf.printf
+             "n = %s, k = %s, f = %s\n"
+             (string_of_int n)
+             (string_of_int k)
+             (IntIntLTSNK_Rel.translate (IntIntLTSNK_Rel.minimise f)))
+       result)
   in
   exit 0;;
