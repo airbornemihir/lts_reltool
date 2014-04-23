@@ -1687,53 +1687,43 @@ let _ =
       "-n, -k, --lts1, --lts2, -p and -q are mandatory arguments."
   in
   let
+      result =
+    (IntIntLTSNK_Rel.get_distinguishing_formulae1
+       (IntIntLTSDotParse.parse !lts1)
+       (IntIntLTSDotParse.parse !lts2)
+       !p
+       !q
+       !n
+       !k)
+  in
+  let
       () =
     if
       !relation
     then
       Printf.printf "%s\n"
 	(match
-	    (IntIntLTSNK_Rel.get_nk_relation1
-               (IntIntLTSDotParse.parse !lts1)
-               (IntIntLTSDotParse.parse !lts2)
-               !p
-               !q
-               !n
-               !k)
+	    result
 	 with
-	 | true -> "true"
-	 | false -> "false"
+	 | [] -> "true"
+	 | _ -> "false"
 	)
-    else if
-	!pairs
-    then
-      (List.iter
-	 (function ((n:int), (k:int)) ->
-           Printf.printf
-             "n = %s, k = %s\n"
-             (string_of_int n)
-             (string_of_int k))
-	 (IntIntLTSNK_Rel.get_nk_pairs1
-            (IntIntLTSDotParse.parse !lts1)
-            (IntIntLTSDotParse.parse !lts2)
-            !p
-            !q
-            !n
-            !k))
     else
       (List.iter
 	 (function ((n:int), (k:int), (f:IntIntLTSNK_Rel.hm_formula)) ->
-           Printf.printf
-             "n = %s, k = %s, f = %s\n"
-             (string_of_int n)
-             (string_of_int k)
-             (IntIntLTSNK_Rel.translate (IntIntLTSNK_Rel.minimise f)))
-	 (IntIntLTSNK_Rel.get_distinguishing_formulae1
-            (IntIntLTSDotParse.parse !lts1)
-            (IntIntLTSDotParse.parse !lts2)
-            !p
-            !q
-            !n
-            !k))
+	   if
+	     !pairs
+	   then
+	     Printf.printf
+               "n = %s, k = %s\n"
+               (string_of_int n)
+               (string_of_int k)
+	   else
+	     Printf.printf
+               "n = %s, k = %s, f = %s\n"
+               (string_of_int n)
+               (string_of_int k)
+               (IntIntLTSNK_Rel.translate (IntIntLTSNK_Rel.minimise f)))
+	 result)
   in
   exit 0;;
