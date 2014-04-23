@@ -1667,6 +1667,12 @@ let _ =
       q = ref (-1)
   in
   let
+      relation = ref false
+  in
+  let
+      pairs = ref false
+  in
+  let
       () =
     Arg.parse
       [("-n", Arg.Set_int n, "number of alternations allowed.");
@@ -1674,36 +1680,60 @@ let _ =
        ("--lts1", Arg.Set_string lts1, "lts where challenger begins.");
        ("--lts2", Arg.Set_string lts2, "lts where defender begins.");
        ("-p", Arg.Set_int p, "initial state in lts1.");
-       ("-q", Arg.Set_int q, "initial state in lts2.")]
+       ("-q", Arg.Set_int q, "initial state in lts2.");
+       ("--pairs", Arg.Set pairs, "print (n, k) pairs only.");
+       ("--relation", Arg.Set relation, "print existence of relation only.")]
       (fun (argument:string) -> ())
-      "do not use"
+      "-n, -k, --lts1, --lts2, -p and -q are mandatory arguments."
   in
   let
       () =
-    List.iter
-      (function ((n:int), (k:int), (f:IntIntLTSNK_Rel.hm_formula)) ->
-        Printf.printf
-          "n = %s, k = %s, f = %s\n"
-          (string_of_int n)
-          (string_of_int k)
-          (IntIntLTSNK_Rel.translate (IntIntLTSNK_Rel.minimise f)))
-      (IntIntLTSNK_Rel.get_distinguishing_formulae1
-         (IntIntLTSDotParse.parse !lts1)
-         (IntIntLTSDotParse.parse !lts2)
-         !p
-         !q
-         !n
-         !k)
-  in
-  let
-      () =
-    Printf.printf
-      "n = %s, k = %s, lts1 = %s, lts2 = %s, p = %s, q = %s\n"
-      (string_of_int !n)
-      (string_of_int !k)
-      !lts1
-      !lts2
-      (string_of_int !p)
-      (string_of_int !q)
+    if
+      !relation
+    then
+      Printf.printf "%s\n"
+	(match
+	    (IntIntLTSNK_Rel.get_nk_relation1
+               (IntIntLTSDotParse.parse !lts1)
+               (IntIntLTSDotParse.parse !lts2)
+               !p
+               !q
+               !n
+               !k)
+	 with
+	 | true -> "true"
+	 | false -> "false"
+	)
+    else if
+	!pairs
+    then
+      (List.iter
+	 (function ((n:int), (k:int)) ->
+           Printf.printf
+             "n = %s, k = %s\n"
+             (string_of_int n)
+             (string_of_int k))
+	 (IntIntLTSNK_Rel.get_nk_pairs1
+            (IntIntLTSDotParse.parse !lts1)
+            (IntIntLTSDotParse.parse !lts2)
+            !p
+            !q
+            !n
+            !k))
+    else
+      (List.iter
+	 (function ((n:int), (k:int), (f:IntIntLTSNK_Rel.hm_formula)) ->
+           Printf.printf
+             "n = %s, k = %s, f = %s\n"
+             (string_of_int n)
+             (string_of_int k)
+             (IntIntLTSNK_Rel.translate (IntIntLTSNK_Rel.minimise f)))
+	 (IntIntLTSNK_Rel.get_distinguishing_formulae1
+            (IntIntLTSDotParse.parse !lts1)
+            (IntIntLTSDotParse.parse !lts2)
+            !p
+            !q
+            !n
+            !k))
   in
   exit 0;;

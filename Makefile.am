@@ -30,7 +30,9 @@ test/l23.dot\
 test/l24.dot\
 test/l25.dot
 
-relts$(EXEEXT): Alt_Fernandez_modules.cmo $(TEST_DOT_FILES)
+# relts$(EXEEXT): $(TEST_DOT_FILES)
+
+relts$(EXEEXT): Alt_Fernandez_modules.cmo
 	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
 
 .ml.cmo:

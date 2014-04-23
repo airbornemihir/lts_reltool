@@ -653,7 +653,9 @@ uninstall-am: uninstall-binSCRIPTS
 	uninstall-binSCRIPTS
 
 
-relts$(EXEEXT): Alt_Fernandez_modules.cmo $(TEST_DOT_FILES)
+# relts$(EXEEXT): $(TEST_DOT_FILES)
+
+relts$(EXEEXT): Alt_Fernandez_modules.cmo
 	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
 
 .ml.cmo:
