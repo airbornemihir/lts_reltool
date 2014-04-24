@@ -1673,6 +1673,9 @@ let _ =
       pairs = ref false
   in
   let
+      equivalence = ref false
+  in
+  let
       () =
     Arg.parse
       [("-n", Arg.Set_int n, "number of alternations allowed.");
@@ -1682,19 +1685,25 @@ let _ =
        ("-p", Arg.Set_int p, "initial state in lts1.");
        ("-q", Arg.Set_int q, "initial state in lts2.");
        ("--pairs", Arg.Set pairs, "print (n, k) pairs only.");
-       ("--relation", Arg.Set relation, "print existence of relation only.")]
+       ("--relation", Arg.Set relation, "print existence of relation only.");
+       ("--equivalence", Arg.Set equivalence, "use the equivalence relation.")]
       (fun (argument:string) -> ())
       "-n, -k, --lts1, --lts2, -p and -q are mandatory arguments."
   in
   let
       result =
-    (IntIntLTSNK_Rel.get_distinguishing_formulae1
-       (IntIntLTSDotParse.parse !lts1)
-       (IntIntLTSDotParse.parse !lts2)
-       !p
-       !q
-       !n
-       !k)
+    (if
+	!equivalence
+     then
+	IntIntLTSNK_Rel.get_distinguishing_formulae2
+     else
+	IntIntLTSNK_Rel.get_distinguishing_formulae1)
+      (IntIntLTSDotParse.parse !lts1)
+      (IntIntLTSDotParse.parse !lts2)
+      !p
+      !q
+      !n
+      !k
   in
   let
       () = 
