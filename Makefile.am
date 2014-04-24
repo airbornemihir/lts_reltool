@@ -5,6 +5,8 @@ bin_SCRIPTS = relts$(EXEEXT) random_lts$(EXEEXT)
 PACKAGES = -package ocamlgraph
 LIBS     = graph.cmo -linkpkg
 
+CXXFLAGS += -std=c++11
+
 TEST_DOT_FILES = \
 test/l03.dot\
 test/l04.dot\
@@ -34,13 +36,13 @@ relts$(EXEEXT): Alt_Fernandez_modules.cmo
 	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
 
 random_lts$(EXEEXT): random_lts.o
-	$(CXX) $^ -o $@
+	$(CXX) $(CXXFLAGS) $^ -o $@
 
 .ml.cmo:
 	$(OCAMLFIND) ocamlc $(PACKAGES) -c $< -o $@
 
 .cpp.o:
-	$(CXX) -c $^ -o $@
+	$(CXX) $(CXXFLAGS) -c $^ -o $@
 
 EXTRA_DIST = Alt_Fernandez_modules.ml $(TEST_DOT_FILES)
 

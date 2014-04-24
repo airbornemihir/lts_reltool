@@ -166,7 +166,7 @@ AWK = @AWK@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
 CXXDEPMODE = @CXXDEPMODE@
-CXXFLAGS = @CXXFLAGS@
+CXXFLAGS = @CXXFLAGS@ -std=c++11
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
@@ -657,13 +657,13 @@ relts$(EXEEXT): Alt_Fernandez_modules.cmo
 	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
 
 random_lts$(EXEEXT): random_lts.o
-	$(CXX) $^ -o $@
+	$(CXX) $(CXXFLAGS) $^ -o $@
 
 .ml.cmo:
 	$(OCAMLFIND) ocamlc $(PACKAGES) -c $< -o $@
 
 .cpp.o:
-	$(CXX) -c $^ -o $@
+	$(CXX) $(CXXFLAGS) -c $^ -o $@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
