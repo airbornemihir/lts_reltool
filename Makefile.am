@@ -1,6 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 
-bin_SCRIPTS = relts$(EXEEXT)
+bin_SCRIPTS = relts$(EXEEXT) random_lts$(EXEEXT)
 
 PACKAGES = -package ocamlgraph
 LIBS     = graph.cmo -linkpkg
@@ -30,14 +30,18 @@ test/l23.dot\
 test/l24.dot\
 test/l25.dot
 
-# relts$(EXEEXT): $(TEST_DOT_FILES)
-
 relts$(EXEEXT): Alt_Fernandez_modules.cmo
 	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
 
+random_lts$(EXEEXT): random_lts.o
+	$(CXX) $^ -o $@
+
 .ml.cmo:
-	ocamlfind ocamlc $(PACKAGES) -c $< -o $@
+	$(OCAMLFIND) ocamlc $(PACKAGES) -c $< -o $@
+
+.cpp.o:
+	$(CXX) -c $^ -o $@
 
 EXTRA_DIST = Alt_Fernandez_modules.ml $(TEST_DOT_FILES)
 
-CLEANFILES = *.cmi *.cmo $(bin_SCRIPTS) *~
+CLEANFILES = *.cmi *.cmo *.o $(bin_SCRIPTS) *~

@@ -2,7 +2,7 @@ AC_INIT(relts,1.0)
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([foreign])
 
-AC_PROG_CC
+AC_PROG_CXX
 
 AC_PROG_OCAML
 if test "$OCAMLC" = "no"; then
