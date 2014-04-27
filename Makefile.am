@@ -32,7 +32,7 @@ test/l23.dot\
 test/l24.dot\
 test/l25.dot
 
-relts$(EXEEXT): Alt_Fernandez_modules.cmo
+relts$(EXEEXT): Alt_Fernandez_modules.cmo relts.cmo
 	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
 
 random_lts$(EXEEXT): random_lts.o
