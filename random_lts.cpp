@@ -4,6 +4,7 @@ typedef std::vector<unsigned int> VU;
 typedef std::vector<VU> VVU;
 #include <random>
 #include <chrono>
+#include <unistd.h>
 
 std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
 
@@ -24,13 +25,43 @@ void fill(VVU &lts, unsigned int root, unsigned int size, VU &leaves) {
   }
 }
 
-int main() {
-  unsigned int n(10);
-  unsigned int buffer(10);
+int main(int argc, char *argv[]) {
+  bool cflag(false);
+  unsigned int n; bool nflag(false);
+  unsigned int buffer(0);
+  for (int c;(c = getopt (argc, argv, "cb:n:")) != -1;)
+    switch (c)
+      {
+      case 'c':
+        cflag = true;
+        break;
+      case 'n':
+        nflag = true;
+        n = atoi(optarg);
+        break;
+      case 'b':
+        buffer = atoi(optarg);
+        break;
+      case '?':
+        if (optopt == 'n')
+          {fprintf (stderr, "Option -%c requires an argument.\n", optopt); return 1;}
+        else if (isprint (optopt))
+          fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+        else
+          fprintf (stderr,
+                   "Unknown option character `\\x%x'.\n",
+                   optopt);
+        break;
+      default:
+        abort ();
+      }
+  if (!nflag)
+    {fprintf (stderr, "Option -n is required.\n"); return 1;}
   VVU lts(n);
   VU leaves;
   fill(lts, 1, n, leaves);
-  std::cout << "digraph {" << std::endl; {
+  std::cout << "digraph {" << std::endl;
+  if (cflag) {
     std::uniform_int_distribution<unsigned int> distribution(1,leaves.size());
     lts[leaves[distribution(generator) - 1] - 1].push_back(1);
   }
