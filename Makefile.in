@@ -646,7 +646,7 @@ uninstall-am: uninstall-binSCRIPTS
 	uninstall-binSCRIPTS
 
 
-relts$(EXEEXT): Alt_Fernandez_modules.cmo relts.cmo
+relts$(EXEEXT): LTS_modules.cmo relts.cmo
 	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
 
 random_lts$(EXEEXT): random_lts.o
