@@ -283,7 +283,7 @@ test/l23.dot\
 test/l24.dot\
 test/l25.dot
 
-EXTRA_DIST = Alt_Fernandez_modules.ml $(TEST_DOT_FILES)
+EXTRA_DIST = LTS_modules.ml relts.ml random_lts.cpp $(TEST_DOT_FILES)
 CLEANFILES = *.cmi *.cmo *.o $(bin_SCRIPTS) *~
 all: all-am
 

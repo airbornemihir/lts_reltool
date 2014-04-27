@@ -44,6 +44,6 @@ random_lts$(EXEEXT): random_lts.o
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $^ -o $@
 
-EXTRA_DIST = Alt_Fernandez_modules.ml $(TEST_DOT_FILES)
+EXTRA_DIST = LTS_modules.ml relts.ml random_lts.cpp $(TEST_DOT_FILES)
 
 CLEANFILES = *.cmi *.cmo *.o $(bin_SCRIPTS) *~
