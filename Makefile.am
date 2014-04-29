@@ -41,6 +41,8 @@ random_lts$(EXEEXT): random_lts.o
 .ml.cmo:
 	$(OCAMLFIND) ocamlc $(PACKAGES) -c $< -o $@
 
+relts.cmo: LTS_modules.cmo
+
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $^ -o $@
 
