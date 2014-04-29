@@ -32,7 +32,10 @@ test/l23.dot\
 test/l24.dot\
 test/l25.dot
 
-relts$(EXEEXT): Alt_Fernandez_modules.cmo
+relts$(EXEEXT): LTS_modules.cmo relts.cmo
+	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
+
+LTS_modules_test$(EXEEXT): LTS_modules.cmo LTS_modules_test.cmo
 	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
 
 random_lts$(EXEEXT): random_lts.o
@@ -41,9 +44,11 @@ random_lts$(EXEEXT): random_lts.o
 .ml.cmo:
 	$(OCAMLFIND) ocamlc $(PACKAGES) -c $< -o $@
 
+relts.cmo: LTS_modules.cmo
+
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $^ -o $@
 
-EXTRA_DIST = Alt_Fernandez_modules.ml $(TEST_DOT_FILES)
+EXTRA_DIST = LTS_modules.ml relts.ml random_lts.cpp LTS_modules_test.ml $(TEST_DOT_FILES)
 
 CLEANFILES = *.cmi *.cmo *.o $(bin_SCRIPTS) *~
