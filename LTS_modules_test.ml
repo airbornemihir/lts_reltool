@@ -1,4 +1,4 @@
-open LTS_modules.ml
+open LTS_modules
 
 let test93 =
   try

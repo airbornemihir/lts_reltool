@@ -35,6 +35,9 @@ test/l25.dot
 relts$(EXEEXT): LTS_modules.cmo relts.cmo
 	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
 
+LTS_modules_test$(EXEEXT): LTS_modules.cmo LTS_modules_test.cmo
+	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
+
 random_lts$(EXEEXT): random_lts.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
@@ -46,6 +49,6 @@ relts.cmo: LTS_modules.cmo
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $^ -o $@
 
-EXTRA_DIST = LTS_modules.ml relts.ml random_lts.cpp $(TEST_DOT_FILES)
+EXTRA_DIST = LTS_modules.ml relts.ml random_lts.cpp LTS_modules_test.ml $(TEST_DOT_FILES)
 
 CLEANFILES = *.cmi *.cmo *.o $(bin_SCRIPTS) *~
