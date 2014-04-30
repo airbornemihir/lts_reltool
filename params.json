@@ -1,1 +1,8 @@
-{"name":"ReLTS","tagline":"Parametrised relations on labelled transition systems.","body":"ReLTS\r\n=====\r\n\r\nReLTS is a Ocaml tool for determining the existence of a family of\r\nrelations on labelled transition systems. Detailed instructions on\r\nusage and installation can be found in the manual.","google":"","note":"Don't delete this file! It's used internally to help with page regeneration."}
+{"name":"ReLTS",
+ "tagline":"Parametrised relations on labelled transition systems.",
+ "body":"ReLTS\r\n=====\r\n\r\nReLTS is a Ocaml tool for determining
+ the existence of a family of\r\nrelations on labelled transition
+ systems. Detailed instructions on\r\nusage and installation can be
+ found in the [manual](/manual.pdf).",
+ "google":"",
+ "note":"Don't delete this file! It's used internally to help with page regeneration."}
