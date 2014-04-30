@@ -44,9 +44,6 @@ let _ =
       "-n, -k, --lts1, --lts2, -p and -q are mandatory arguments."
   in
   let
-      initial_call_count:int = !IntIntLTSNK_Rel.call_count
-  in
-  let
       result =
     (if
 	!equivalence
@@ -60,9 +57,6 @@ let _ =
       !q
       !n
       !k
-  in
-  let
-      final_call_count:int = !IntIntLTSNK_Rel.call_count
   in
   let
       () = 
@@ -96,11 +90,5 @@ let _ =
              (string_of_int k)
              (IntIntLTSNK_Rel.translate (IntIntLTSNK_Rel.minimise f)))
        result)
-  in
-  let
-      () =
-    Printf.printf
-      "%s calls.\n"
-      (string_of_int (final_call_count - initial_call_count))
   in
   exit 0;;
