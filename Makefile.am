@@ -3,7 +3,7 @@ ACLOCAL_AMFLAGS = -I m4
 bin_SCRIPTS = relts$(EXEEXT) random_lts$(EXEEXT)
 
 PACKAGES = -package ocamlgraph
-LIBS     = graph.cmo -linkpkg
+LIBS     = -linkpkg
 
 OCAMLCOMP = $(OCAMLFIND) ocamlc $(PACKAGES) -c -o $@ $^
 OCAMLLINK = $(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) -o $@ $^
