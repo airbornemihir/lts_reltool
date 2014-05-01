@@ -1,5 +1,9 @@
 ACLOCAL_AMFLAGS = -I m4
 
+check_PROGRAMS = test93$(EXEEXT)
+
+test93_SOURCES = test/test93.ml
+
 bin_SCRIPTS = relts$(EXEEXT) random_lts$(EXEEXT)
 
 PACKAGES = -package ocamlgraph
@@ -41,6 +45,9 @@ LTS_modules_test$(EXEEXT): LTS_modules.cmo LTS_modules_test.cmo
 random_lts$(EXEEXT): random_lts.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
+test93$(EXEEXT): LTS_modules.cmo test/test93.cmo
+	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
+
 .ml.cmo:
 	$(OCAMLFIND) ocamlc $(PACKAGES) -c $< -o $@
 
@@ -48,6 +55,8 @@ relts.cmo: LTS_modules.cmo
 
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $^ -o $@
+
+TESTS = test93$(EXEEXT)
 
 EXTRA_DIST = LTS_modules.ml relts.ml random_lts.cpp LTS_modules_test.ml $(TEST_DOT_FILES)
 
