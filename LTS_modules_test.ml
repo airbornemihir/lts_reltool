@@ -1,23 +1,5 @@
 open LTS_modules
 
-let test93 =
-  try
-    match
-      IntIntLTS.add_edge IntIntLTS.empty 0 1
-    with
-    | _ -> "test93 passed"
-  with
-  | Invalid_argument _ -> "test93 failed"
-
-let test94 =
-  try
-    match
-      IntIntLTS.add_edge_e IntIntLTS.empty (IntIntLTS.E.create 0 0 1)
-    with
-    | _ -> "test94 passed"
-  with
-  | Invalid_argument _ -> "test94 failed"
-
 let test95 =
   try
     match

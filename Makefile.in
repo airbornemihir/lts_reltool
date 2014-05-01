@@ -79,7 +79,7 @@ POST_UNINSTALL = :
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) test-driver \
-	COPYING INSTALL install-sh missing
+	COPYING INSTALL depcomp install-sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_cxx_compile_stdcxx_11.m4 \
 	$(top_srcdir)/m4/ocaml.m4 $(top_srcdir)/configure.ac
@@ -93,6 +93,9 @@ CONFIG_CLEAN_VPATH_FILES =
 am_test93_OBJECTS =
 test93_OBJECTS = $(am_test93_OBJECTS)
 test93_LDADD = $(LDADD)
+am_test94_OBJECTS =
+test94_OBJECTS = $(am_test94_OBJECTS)
+test94_LDADD = $(LDADD)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -147,8 +150,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(test93_SOURCES)
-DIST_SOURCES = $(test93_SOURCES)
+SOURCES = $(test93_SOURCES) $(test94_SOURCES)
+DIST_SOURCES = $(test93_SOURCES) $(test94_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -469,8 +472,9 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
-check_PROGRAMS = test93$(EXEEXT)
+check_PROGRAMS = test93$(EXEEXT) test94$(EXEEXT)
 test93_SOURCES = test/test93.ml
+test94_SOURCES = test/test94.ml
 bin_SCRIPTS = relts$(EXEEXT) random_lts$(EXEEXT)
 PACKAGES = -package ocamlgraph
 TEST_DOT_FILES = \
@@ -498,7 +502,7 @@ test/l23.dot\
 test/l24.dot\
 test/l25.dot
 
-TESTS = test93$(EXEEXT)
+TESTS = test93$(EXEEXT) test94$(EXEEXT)
 EXTRA_DIST = LTS_modules.ml relts.ml random_lts.cpp LTS_modules_test.ml $(TEST_DOT_FILES)
 CLEANFILES = *.cmi *.cmo *.o $(bin_SCRIPTS) *~
 all: all-am
@@ -787,6 +791,13 @@ recheck: all $(check_PROGRAMS)
 test93.log: test93$(EXEEXT)
 	@p='test93$(EXEEXT)'; \
 	b='test93'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+test94.log: test94$(EXEEXT)
+	@p='test94$(EXEEXT)'; \
+	b='test94'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
@@ -1112,6 +1123,9 @@ random_lts$(EXEEXT): random_lts.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 test93$(EXEEXT): LTS_modules.cmo test/test93.cmo
+	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
+
+test94$(EXEEXT): LTS_modules.cmo test/test94.cmo
 	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
 
 .ml.cmo:
