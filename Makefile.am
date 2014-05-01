@@ -5,8 +5,6 @@ bin_SCRIPTS = relts$(EXEEXT) random_lts$(EXEEXT)
 PACKAGES = -package ocamlgraph
 LIBS     = graph.cmo -linkpkg
 
-CXXFLAGS += -std=c++11
-
 TEST_DOT_FILES = \
 test/l03.dot\
 test/l04.dot\
