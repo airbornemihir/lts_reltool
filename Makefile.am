@@ -9,9 +9,13 @@ test94_SOURCES = test/test94.ml
 bin_SCRIPTS = relts$(EXEEXT) random_lts$(EXEEXT)
 
 PACKAGES = -package ocamlgraph
-LIBS     = graph.cmo -linkpkg
+LIBS     = -linkpkg
 
-CXXFLAGS += -std=c++11
+OCAMLCOMP = $(OCAMLFIND) ocamlc $(PACKAGES) -c -o $@ $^
+OCAMLLINK = $(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) -o $@ $^
+
+CXXLINK = $(CXX) $(CXXFLAGS) -o $@ $^
+CXXCOMP = $(CXX) $(CXXFLAGS) -c -o $@ $^
 
 TEST_DOT_FILES = \
 test/l03.dot\
@@ -39,13 +43,13 @@ test/l24.dot\
 test/l25.dot
 
 relts$(EXEEXT): LTS_modules.cmo relts.cmo
-	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
+	$(OCAMLLINK)
 
 LTS_modules_test$(EXEEXT): LTS_modules.cmo LTS_modules_test.cmo
-	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
+	$(OCAMLLINK)
 
 random_lts$(EXEEXT): random_lts.o
-	$(CXX) $(CXXFLAGS) $^ -o $@
+	$(CXXLINK)
 
 test93$(EXEEXT): LTS_modules.cmo test/test93.cmo
 	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
@@ -54,12 +58,12 @@ test94$(EXEEXT): LTS_modules.cmo test/test94.cmo
 	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
 
 .ml.cmo:
-	$(OCAMLFIND) ocamlc $(PACKAGES) -c $< -o $@
+	$(OCAMLCOMP)
 
 relts.cmo: LTS_modules.cmo
 
 .cpp.o:
-	$(CXX) $(CXXFLAGS) -c $^ -o $@
+	$(CXXCOMP)
 
 TESTS = test93$(EXEEXT) test94$(EXEEXT)
 
