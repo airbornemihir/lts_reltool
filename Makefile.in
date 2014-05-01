@@ -1127,10 +1127,10 @@ random_lts$(EXEEXT): random_lts.o
 	$(CXXLINK)
 
 test93$(EXEEXT): LTS_modules.cmo test/test93.cmo
-	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
+	$(OCAMLLINK)
 
 test94$(EXEEXT): LTS_modules.cmo test/test94.cmo
-	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
+	$(OCAMLLINK)
 
 .ml.cmo:
 	$(OCAMLCOMP)

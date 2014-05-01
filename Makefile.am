@@ -51,11 +51,15 @@ LTS_modules_test$(EXEEXT): LTS_modules.cmo LTS_modules_test.cmo
 random_lts$(EXEEXT): random_lts.o
 	$(CXXLINK)
 
-test93$(EXEEXT): LTS_modules.cmo test/test93.cmo
-	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
+TESTS = test93$(EXEEXT) test94$(EXEEXT)
 
-test94$(EXEEXT): LTS_modules.cmo test/test94.cmo
-	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
+$(TESTS): LTS_modules.cmo
+
+test93$(EXEEXT): test/test93.cmo
+	$(OCAMLLINK)
+
+test94$(EXEEXT): test/test94.cmo
+	$(OCAMLLINK)
 
 .ml.cmo:
 	$(OCAMLCOMP)
@@ -64,8 +68,6 @@ relts.cmo: LTS_modules.cmo
 
 .cpp.o:
 	$(CXXCOMP)
-
-TESTS = test93$(EXEEXT) test94$(EXEEXT)
 
 EXTRA_DIST = LTS_modules.ml relts.ml random_lts.cpp LTS_modules_test.ml $(TEST_DOT_FILES)
 
