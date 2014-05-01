@@ -259,6 +259,10 @@ top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
 bin_SCRIPTS = relts$(EXEEXT) random_lts$(EXEEXT)
 PACKAGES = -package ocamlgraph
+OCAMLCOMP = $(OCAMLFIND) ocamlc $(PACKAGES) -c -o $@ $^
+OCAMLLINK = $(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) -o $@ $^
+CXXLINK = $(CXX) $(CXXFLAGS) -o $@ $^
+CXXCOMP = $(CXX) $(CXXFLAGS) -c -o $@ $^
 TEST_DOT_FILES = \
 test/l03.dot\
 test/l04.dot\
@@ -655,21 +659,21 @@ uninstall-am: uninstall-binSCRIPTS
 
 
 relts$(EXEEXT): LTS_modules.cmo relts.cmo
-	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
+	$(OCAMLLINK)
 
 LTS_modules_test$(EXEEXT): LTS_modules.cmo LTS_modules_test.cmo
-	$(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) $^ -o $@
+	$(OCAMLLINK)
 
 random_lts$(EXEEXT): random_lts.o
-	$(CXX) $(CXXFLAGS) $^ -o $@
+	$(CXXLINK)
 
 .ml.cmo:
-	$(OCAMLFIND) ocamlc $(PACKAGES) -c $< -o $@
+	$(OCAMLCOMP)
 
 relts.cmo: LTS_modules.cmo
 
 .cpp.o:
-	$(CXX) $(CXXFLAGS) -c $^ -o $@
+	$(CXXCOMP)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
