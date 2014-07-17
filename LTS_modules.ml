@@ -262,7 +262,7 @@ module NK_Rel =
                (p1 <> p) || (q1 <> q) || (n1 > n) || (k1 > k))
              yes_table)
 
-      let add_entry_no_table no_table p q n k f =
+      let add_entry_no_table no_table p q (n, k, f) =
         if
           (List.exists
              (function (p1, q1, n1, k1, f1) ->
@@ -286,6 +286,62 @@ module NK_Rel =
       let create_yes_table () = []
 
       let create_no_table () = []
+
+      let add_winning_strategy partial_l_q (n, k, f) =
+        List.map
+          (function
+        (max_n,
+         max_k,
+         formula_list) ->
+          ((if
+              max_n < n
+            then n
+            else max_n),
+           (if
+               max_k < k
+            then k
+            else max_k),
+           f::formula_list))
+          partial_l_q
+
+      let add_optimal_winning_strategy partial_l_pp_qq (n, k, f) =
+        if
+          List.exists
+            (fun (n1, k1, f1) ->
+              (n1 <= n) && (k1 <= k))
+            partial_l_pp_qq
+        then
+          partial_l_pp_qq
+        else
+          (n, k, f) ::
+            (List.filter
+               (fun (n1, k1, f1) ->
+                 (n1 < n) || (k1 < k))
+               partial_l_pp_qq)
+
+      let add_formula_base_case
+          label
+          partial_l_p
+          (n, k, formula_list) =
+        if
+          (List.exists
+             (fun (n1, k1, f1) ->
+               (n1 <= n) && (k1 <= k))
+             partial_l_p)
+        then
+          partial_l_p
+        else
+          (n, k, DIAMOND (label, AND formula_list)) ::
+            (List.filter
+               (fun (n1, k1, f1) ->
+                 (n1 < n) || (k1 < k))
+               partial_l_p)
+
+      let add_round (n1, k1, f1) = (n1, k1 + 1, f1)
+
+      let add_round_and_alternation (n1, k1, f1) = (n1 + 1, k1 + 1, negation f1)
+
+      let base_case_strategy = (0, 1, [AND[]])
 
       (* we assume that p is the challenger's position in lts1 and q is
          the defender's position in lts2. thus, if the challenger switches to
@@ -314,20 +370,20 @@ module NK_Rel =
           | hd::tl -> (hd::tl, yes_table, no_table) 
           | [] -> (
 	    let yes_table = add_entry_yes_table yes_table p q n k in
-	      (* for each successor p' of p, check if that is simulated by
-                 a successor q' of q *)
+	    (* for each successor p' of p, check if that is simulated by
+               a successor q' of q *)
 	    let
 	        (v_p, l_p, yes_table, no_table) =
-                (* This fold deals with all the successors of p,
-                   universal quantification.*)
+              (* This fold deals with all the successors of p,
+                 universal quantification.*)
               (LTS.fold_succ_e
 	         (fun e_p (partial_v_p, partial_l_p, yes_table, no_table) ->
                    let
                        (match_found, v_q, l_q,
                         yes_table,
                         no_table) =
-                       (* This fold deals with all the successors of q,
-                          existential quantification.*)
+                     (* This fold deals with all the successors of q,
+                        existential quantification.*)
                      (LTS.fold_succ_e
 		        (fun e_q
                           (partial_match_found,
@@ -344,7 +400,7 @@ module NK_Rel =
                                no_table)
                             else
                               let
-                                    (* this is when we do not switch sides.*)
+                                  (* this is when we do not switch sides.*)
                                   (l_pp,
                                    yes_table,
                                    no_table) =
@@ -371,12 +427,11 @@ module NK_Rel =
                               let
                                   l_pp =
                                 (List.map
-                                   (fun (n1, k1, f1) ->
-                                     (n1, k1 + 1, f1))
+                                   add_round
                                    l_pp) (* one more round. *)
                               in
                               let
-                                    (* this is when we switch sides.*)
+                                  (* this is when we switch sides.*)
                                   (l_qq,
                                    yes_table,
                                    no_table) =
@@ -410,28 +465,13 @@ module NK_Rel =
                               let
                                   l_qq =
                                 (List.map
-                                   (fun (n1, k1, f1) ->
-                                     (n1 + 1, k1 + 1, negation f1))
+                                   add_round_and_alternation
                                    l_qq) (* one more round, one more alternation. *)
                               in
                               let
                                   l_pp_qq =
                                 List.fold_left
-                                  (fun partial_l_pp_qq (n, k, f) ->
-                                    if
-                                      List.exists
-                                        (fun (n1, k1, f1) ->
-                                          (n1 <= n) && (k1 <= k))
-                                        partial_l_pp_qq
-                                    then
-                                      partial_l_pp_qq
-                                    else
-                                      (n, k, f) ::
-                                        (List.filter
-                                           (fun (n1, k1, f1) ->
-                                             (n1 < n) || (k1 < k))
-                                           partial_l_pp_qq)
-                                  )
+                                  add_optimal_winning_strategy
                                   []
                                   (l_pp @ l_qq)
                               in
@@ -447,47 +487,16 @@ module NK_Rel =
                                  else
                                     (List.concat
                                        (List.map
-                                          (function (n, k, f) ->
-                                            List.map
-                                              (function
-                                            (max_n,
-                                             max_k,
-                                             formula_list) ->
-                                              ((if
-                                                  max_n < n
-                                                then n
-                                                else max_n),
-                                               (if
-                                                   max_k < k
-                                                then k
-                                                else max_k),
-                                               f::formula_list))
-                                              partial_l_q
-                                          )
+                                          (add_winning_strategy partial_l_q)
                                           l_pp_qq)))
                               in
-                                (* this is where we get rid of cruft
-                                   in the cartesian product we have
-                                   built so far.*)
+                              (* this is where we get rid of cruft
+                                 in the cartesian product we have
+                                 built so far.*)
                               let
                                   partial_l_q =
                                 (List.fold_left
-                                   (fun partial_l_q (n, k, f) ->
-                                     if
-                                       List.exists
-                                         (fun (n1, k1, f1) ->
-                                           (n1 <= n) && (k1 <= k))
-                                         partial_l_q
-                                     then
-                                       partial_l_q
-                                     else
-                                       (n, k, f)::
-                                         (List.filter
-                                            (fun (n1, k1, f1) ->
-                                              (n1 < n) || (k1 < k))
-                                            partial_l_q
-                                         )
-                                   )
+                                   add_optimal_winning_strategy
                                    []
                                    partial_l_q)
                               in
@@ -509,12 +518,11 @@ module NK_Rel =
                      if
                        (not match_found)
                      then
-                         (* this is the base case for entry into the
-                            no_table. The challenger can perform one move
-                            right here which the defender cannot
-                            replicate. *)
-                         (* [(0, 1, [DIAMOND(LTS.E.label e_p, AND[])])] *)
-                       [(0, 1, [AND[]])]
+                       (* this is the base case for entry into the
+                          no_table. The challenger can perform one move
+                          right here which the defender cannot
+                          replicate. *)
+                       [base_case_strategy]
                      else
                        l_q
                    in
@@ -527,23 +535,10 @@ module NK_Rel =
                                            which makes the and
                                            thingy false as well. *)
                     List.fold_left
-                      (fun partial_l_p (n, k, formula_list) ->
-                        if
-                          (List.exists
-                             (fun (n1, k1, f1) ->
-                               (n1 <= n) && (k1 <= k))
-                             partial_l_p)
-                        then
-                          partial_l_p
-                        else
-                          (n, k, DIAMOND (LTS.E.label e_p, AND formula_list)) ::
-                            (List.filter
-                               (fun (n1, k1, f1) ->
-                                 (n1 < n) || (k1 < k))
-                               partial_l_p)
-                      )
+                      (add_formula_base_case
+                         (LTS.E.label e_p))
                       partial_l_p
-                      l_q,  
+                      l_q,
                     yes_table,
                     no_table
                    )
@@ -565,8 +560,8 @@ module NK_Rel =
                        and k for which the challenger wins.*)
                remove_entry_yes_table yes_table p q n k,
                List.fold_left
-                 (fun no_table (n1, k1, f1) ->
-                   add_entry_no_table no_table p q n1 k1 f1)
+                 (fun no_table ->
+                   add_entry_no_table no_table p q)
                  no_table
                  l_p
               )
@@ -668,18 +663,7 @@ module NK_Rel =
 	    ()
 	in
 	List.fold_left
-	  (fun list (n, k, f) ->
-	    if
-	      (List.exists
-		 (fun (n1, k1, f1) -> (n1 <= n) && (k1 <= k))
-		 list)
-	    then
-	      list
-	    else
-	      (n, k, f) ::
-		(List.filter
-		   (fun (n1, k1, f1) -> (n1 < n) || (k1 < k))
-		   list))
+	  add_optimal_winning_strategy
 	  []
 	  (l1 @ l2)
 
