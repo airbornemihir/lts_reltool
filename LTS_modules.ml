@@ -239,14 +239,6 @@ module NK_Rel =
             (p1 = p) && (q1 = q) && (n1 >= n) && (k1 >= k))
           yes_table
 
-      let fetch_entries_no_table no_table p q n k =
-        List.map
-          (function (_, _, n1, k1, f1) -> (n1, k1, f1))
-          (List.filter
-             (function (p1, q1, n1, k1, f1) ->
-               (p1 = p) && (q1 = q) && (n1 <= n) && (k1 <= k))
-             no_table)
-
       let add_entry_yes_table yes_table p q n k =
         if
           (List.exists
@@ -262,21 +254,6 @@ module NK_Rel =
                (p1 <> p) || (q1 <> q) || (n1 > n) || (k1 > k))
              yes_table)
 
-      let add_entry_no_table no_table p q (n, k, f) =
-        if
-          (List.exists
-             (function (p1, q1, n1, k1, f1) ->
-               (p1 = p) && (q1 = q) && (n1 <= n) && (k1 <= k))
-             no_table)
-        then
-          no_table
-        else
-          ((p, q, n, k, f)::
-              (List.filter
-                 (function (p1, q1, n1, k1, f1) ->
-                   (p1 <> p) || (q1 <> q) || (n1 < n) || (k1 < k))
-                 no_table))
-
       let remove_entry_yes_table yes_table p q n k =
         List.filter
           (function (p1, q1, n1, k1) ->
@@ -285,63 +262,146 @@ module NK_Rel =
 
       let create_yes_table () = []
 
-      let create_no_table () = []
+      module S1 = (struct
 
-      let add_winning_strategy partial_l_q (n, k, f) =
-        List.map
-          (function
-        (max_n,
-         max_k,
-         formula_list) ->
-          ((if
-              max_n < n
-            then n
-            else max_n),
-           (if
-               max_k < k
-            then k
-            else max_k),
-           f::formula_list))
-          partial_l_q
+        type strategy = int * int * hm_formula
 
-      let add_optimal_winning_strategy partial_l_pp_qq (n, k, f) =
-        if
-          List.exists
-            (fun (n1, k1, f1) ->
-              (n1 <= n) && (k1 <= k))
+        type strategy_options = int * int * hm_formula list
+
+        type no_table_entry = LTS.V.t * LTS.V.t * strategy
+
+        type no_table = no_table_entry list
+
+        let add_entry_no_table
+            no_table
+            p
+            q
+            (n, k, f) =
+          if
+            (List.exists
+               (function (p1, q1, (n1, k1, f1)) ->
+                 (p1 = p) && (q1 = q) && (n1 <= n) && (k1 <= k))
+               no_table)
+          then
+            no_table
+          else
+            ((p, q, (n, k, f))::
+                (List.filter
+                   (function (p1, q1, (n1, k1, f1)) ->
+                     (p1 <> p) || (q1 <> q) || (n1 < n) || (k1 < k))
+                   no_table))
+
+        let fetch_entries_no_table no_table p q n k =
+          List.map
+            (function (_, _, (n1, k1, f1)) -> (n1, k1, f1))
+            (List.filter
+               (function (p1, q1, (n1, k1, f1)) ->
+                 (p1 = p) && (q1 = q) && (n1 <= n) && (k1 <= k))
+               no_table)
+
+        let create_no_table () = []
+
+        let add_winning_strategy partial_l_q (n, k, f) =
+          List.map
+            (function
+          (max_n,
+           max_k,
+           formula_list) ->
+            ((if
+                max_n < n
+              then n
+              else max_n),
+             (if
+                 max_k < k
+              then k
+              else max_k),
+             f::formula_list))
+            partial_l_q
+
+        let add_optimal_winning_strategy partial_l_pp_qq (n, k, f) =
+          if
+            List.exists
+              (fun (n1, k1, f1) ->
+                (n1 <= n) && (k1 <= k))
+              partial_l_pp_qq
+          then
             partial_l_pp_qq
-        then
-          partial_l_pp_qq
-        else
-          (n, k, f) ::
-            (List.filter
-               (fun (n1, k1, f1) ->
-                 (n1 < n) || (k1 < k))
-               partial_l_pp_qq)
+          else
+            (n, k, f) ::
+              (List.filter
+                 (fun (n1, k1, f1) ->
+                   (n1 < n) || (k1 < k))
+                 partial_l_pp_qq)
 
-      let add_formula_base_case
-          label
-          partial_l_p
-          (n, k, formula_list) =
-        if
-          (List.exists
-             (fun (n1, k1, f1) ->
-               (n1 <= n) && (k1 <= k))
-             partial_l_p)
-        then
-          partial_l_p
-        else
-          (n, k, DIAMOND (label, AND formula_list)) ::
-            (List.filter
+        let add_formula_base_case
+            label
+            partial_l_p
+            (n, k, formula_list) =
+          if
+            (List.exists
                (fun (n1, k1, f1) ->
-                 (n1 < n) || (k1 < k))
+                 (n1 <= n) && (k1 <= k))
                partial_l_p)
+          then
+            partial_l_p
+          else
+            (n, k, DIAMOND (label, AND formula_list)) ::
+              (List.filter
+                 (fun (n1, k1, f1) ->
+                   (n1 < n) || (k1 < k))
+                 partial_l_p)
 
-      let add_round (n1, k1, f1) = (n1, k1 + 1, f1)
+        let add_round (n1, k1, f1) = (n1, k1 + 1, f1)
 
-      let add_round_and_alternation (n1, k1, f1) = (n1 + 1, k1 + 1, negation f1)
+        let add_round_and_alternation (n1, k1, f1) = (n1 + 1, k1 + 1, negation f1)
 
-      let base_case_strategy = (0, 1, [AND[]])
+        let base_case_strategy = (0, 1, [AND[]])
+
+      end)
+
+      open S1
+
+      module F1 = functor
+          (STRATEGY_TYPE: sig
+            type strategy
+            type no_table_entry
+            type no_table
+            type strategy_options
+            val add_entry_no_table:
+              no_table ->
+              LTS.V.t ->
+              LTS.V.t ->
+              strategy ->
+              no_table
+            val fetch_entries_no_table:
+              no_table ->
+              LTS.V.t ->
+              LTS.V.t ->
+              int ->
+              int ->
+              strategy list
+            val create_no_table:
+              unit ->
+              no_table
+            val add_winning_strategy:
+              strategy_options list ->
+              strategy ->
+              strategy_options list
+            val add_optimal_winning_strategy:
+              strategy list ->
+              strategy ->
+              strategy list
+            val add_formula_base_case:
+              LTS.A.t ->
+              strategy list ->
+              strategy_options ->
+              strategy list
+            val add_round: strategy -> strategy
+            val add_round_and_alternation: strategy -> strategy
+            val base_case_strategy: strategy_options
+          end) -> (struct
+
+          end)
 
       (* we assume that p is the challenger's position in lts1 and q is
          the defender's position in lts2. thus, if the challenger switches to
