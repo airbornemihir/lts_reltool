@@ -807,8 +807,8 @@ module NK_Rel =
 
           end)
 
-      module F3 = F1(S1)
-      let get_distinguishing_formulae = F3.get_strategies
+      module S3 = F1(S1)
+      let get_distinguishing_formulae = S3.get_strategies
 
       let rec
 	  checknkRel
@@ -839,43 +839,15 @@ module NK_Rel =
         | ([], _, _) -> true
         | (_, _, _) -> false
 
-      let get_distinguishing_formulae1 = F3.get_strategies1
+      let get_distinguishing_formulae1 = S3.get_strategies1
 
-      let get_distinguishing_formulae2 = F3.get_strategies2
+      let get_distinguishing_formulae2 = S3.get_strategies2
 
-      module F4 = F1(S2)
+      module S4 = F1(S2)
 
-      let
-	  get_nk_pairs
-	    f
-	    lts1
-	    lts2
-	    p
-	    q
-	    n
-	    k
-	  =
-	List.map
-	  (fun (n, k, f) -> (n, k))
-	  (f
-	     lts1
-	     lts2
-	     p
-	     q
-	     n
-	     k)
+      let get_nk_pairs1 = S4.get_strategies1
 
-      let
-	  get_nk_pairs1
-	  =
-	get_nk_pairs
-	  get_distinguishing_formulae1
-
-      let
-	  get_nk_pairs2
-	  =
-	get_nk_pairs
-	  get_distinguishing_formulae2
+      let get_nk_pairs2 = S4.get_strategies2
 
       let
 	  get_nk_relation
