@@ -422,8 +422,8 @@ module NK_Rel =
 	        k
                 yes_table
                 no_table
-          (* rel is some specific relation, can be a prebisim or a
-             simulation equivalence or a bisimulation *)
+                (* rel is some specific relation, can be a prebisim or a
+                   simulation equivalence or a bisimulation *)
 	        rel = (
               if k = 0 then ([], yes_table, no_table)
               else if check_entry_yes_table yes_table p q n k  
@@ -435,20 +435,20 @@ module NK_Rel =
                 | hd::tl -> (hd::tl, yes_table, no_table) 
                 | [] -> (
 	          let yes_table = add_entry_yes_table yes_table p q n k in
-	    (* for each successor p' of p, check if that is simulated by
-               a successor q' of q *)
+	          (* for each successor p' of p, check if that is simulated by
+                     a successor q' of q *)
 	          let
 	              (v_p, l_p, yes_table, no_table) =
-              (* This fold deals with all the successors of p,
-                 universal quantification.*)
+                    (* This fold deals with all the successors of p,
+                       universal quantification.*)
                     (LTS.fold_succ_e
 	               (fun e_p (partial_v_p, partial_l_p, yes_table, no_table) ->
                          let
                              (match_found, v_q, l_q,
                               yes_table,
                               no_table) =
-                     (* This fold deals with all the successors of q,
-                        existential quantification.*)
+                           (* This fold deals with all the successors of q,
+                              existential quantification.*)
                            (LTS.fold_succ_e
 		              (fun e_q
                                 (partial_match_found,
@@ -465,7 +465,7 @@ module NK_Rel =
                                      no_table)
                                   else
                                     let
-                                  (* this is when we do not switch sides.*)
+                                        (* this is when we do not switch sides.*)
                                         (l_pp,
                                          yes_table,
                                          no_table) =
@@ -496,7 +496,7 @@ module NK_Rel =
                                          l_pp) (* one more round. *)
                                     in
                                     let
-                                  (* this is when we switch sides.*)
+                                        (* this is when we switch sides.*)
                                         (l_qq,
                                          yes_table,
                                          no_table) =
@@ -555,9 +555,9 @@ module NK_Rel =
                                                 (add_winning_strategy partial_l_q)
                                                 l_pp_qq)))
                                     in
-                              (* this is where we get rid of cruft
-                                 in the cartesian product we have
-                                 built so far.*)
+                                    (* this is where we get rid of cruft
+                                       in the cartesian product we have
+                                       built so far.*)
                                     let
                                         partial_l_q =
                                       (List.fold_left
@@ -583,10 +583,10 @@ module NK_Rel =
                            if
                              (not match_found)
                            then
-                       (* this is the base case for entry into the
-                          no_table. The challenger can perform one move
-                          right here which the defender cannot
-                          replicate. *)
+                             (* this is the base case for entry into the
+                                no_table. The challenger can perform one move
+                                right here which the defender cannot
+                                replicate. *)
                              [base_case_strategy]
                            else
                              l_q
@@ -633,9 +633,78 @@ module NK_Rel =
                 )
             )
 
+            let
+	        get_strategies1
+	          lts1
+	          lts2
+	          p
+	          q
+	          n
+	          k
+	        =
+	      let
+	          (yes_table, no_table) = (create_yes_table (), create_no_table ())
+	      in
+	      let
+	          (l1, yes_table, no_table) = 
+	        get_strategies
+	          lts1
+	          lts2
+	          p
+	          q
+	          n
+	          k
+                  yes_table
+                  no_table
+	          ()
+	      in
+	      l1
+
+            let
+	        get_strategies2
+	          lts1
+	          lts2
+	          p
+	          q
+	          n
+	          k
+	        =
+	      let
+	          (yes_table, no_table) = (create_yes_table (), create_no_table ())
+	      in
+	      let
+	          (l1, yes_table, no_table) = 
+	        get_strategies
+	          lts1
+	          lts2
+	          p
+	          q
+	          n
+	          k
+                  yes_table
+                  no_table
+	          ()
+	      in
+	      let
+	          (l2, yes_table, no_table) = 
+	        get_strategies
+	          lts2
+	          lts1
+	          q
+	          p
+	          n
+	          k
+                  yes_table
+                  no_table
+	          ()
+	      in
+	      List.fold_left
+	        add_optimal_winning_strategy
+	        []
+	        (l1 @ l2)
+
           end)
 
-      open S1
       module F3 = F1(S1)
       let get_distinguishing_formulae = F3.get_strategies
 
@@ -668,75 +737,9 @@ module NK_Rel =
         | ([], _, _) -> true
         | (_, _, _) -> false
 
-      let
-	  get_distinguishing_formulae1
-	    lts1
-	    lts2
-	    p
-	    q
-	    n
-	    k
-	  =
-	let
-	    (yes_table, no_table) = (create_yes_table (), create_no_table ())
-	in
-	let
-	    (l1, yes_table, no_table) = 
-	  get_distinguishing_formulae
-	    lts1
-	    lts2
-	    p
-	    q
-	    n
-	    k
-            yes_table
-            no_table
-	    ()
-	in
-	l1
+      let get_distinguishing_formulae1 = F3.get_strategies1
 
-      let
-	  get_distinguishing_formulae2
-	    lts1
-	    lts2
-	    p
-	    q
-	    n
-	    k
-	  =
-	let
-	    (yes_table, no_table) = (create_yes_table (), create_no_table ())
-	in
-	let
-	    (l1, yes_table, no_table) = 
-	  get_distinguishing_formulae
-	    lts1
-	    lts2
-	    p
-	    q
-	    n
-	    k
-            yes_table
-            no_table
-	    ()
-	in
-	let
-	    (l2, yes_table, no_table) = 
-	  get_distinguishing_formulae
-	    lts2
-	    lts1
-	    q
-	    p
-	    n
-	    k
-            yes_table
-            no_table
-	    ()
-	in
-	List.fold_left
-	  add_optimal_winning_strategy
-	  []
-	  (l1 @ l2)
+      let get_distinguishing_formulae2 = F3.get_strategies2
 
       let
 	  get_nk_pairs
