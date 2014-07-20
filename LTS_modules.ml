@@ -366,6 +366,108 @@ module NK_Rel =
 
       end)
 
+      module S2 = (struct
+
+        type strategy = int * int
+
+        type strategy_options = int * int
+
+        type no_table_entry = LTS.V.t * LTS.V.t * strategy
+
+        type no_table = no_table_entry list
+
+        let add_entry_no_table
+            no_table
+            p
+            q
+            (n, k) =
+          if
+            (List.exists
+               (function (p1, q1, (n1, k1)) ->
+                 (p1 = p) && (q1 = q) && (n1 <= n) && (k1 <= k))
+               no_table)
+          then
+            no_table
+          else
+            ((p, q, (n, k))::
+                (List.filter
+                   (function (p1, q1, (n1, k1)) ->
+                     (p1 <> p) || (q1 <> q) || (n1 < n) || (k1 < k))
+                   no_table))
+
+        let fetch_entries_no_table no_table p q n k =
+          List.map
+            (function (_, _, (n1, k1)) -> (n1, k1))
+            (List.filter
+               (function (p1, q1, (n1, k1)) ->
+                 (p1 = p) && (q1 = q) && (n1 <= n) && (k1 <= k))
+               no_table)
+
+        let create_no_table () = []
+
+        let add_winning_strategy partial_l_q (n, k) =
+          List.map
+            (function
+          (max_n,
+           max_k) ->
+            ((if
+                max_n < n
+              then n
+              else max_n),
+             (if
+                 max_k < k
+              then k
+              else max_k)))
+            partial_l_q
+
+        let add_optimal_winning_strategy, add_optimal_winning_strategy_options =
+          let f
+              list
+              (n, k) =
+            if
+              List.exists
+                (fun (n1, k1) ->
+                  (n1 <= n) && (k1 <= k))
+                list
+            then
+              list
+            else
+              (n, k) ::
+                (List.filter
+                   (fun (n1, k1) ->
+                     (n1 < n) || (k1 < k))
+                   list)
+          in
+          (f, f)
+
+        let add_formula_base_case
+            label
+            partial_l_p
+            (n, k) =
+          if
+            (List.exists
+               (fun (n1, k1) ->
+                 (n1 <= n) && (k1 <= k))
+               partial_l_p)
+          then
+            partial_l_p
+          else
+            (n, k) ::
+              (List.filter
+                 (fun (n1, k1) ->
+                   (n1 < n) || (k1 < k))
+                 partial_l_p)
+
+        let add_round (n1, k1) = (n1, k1 + 1)
+
+        let add_round_and_alternation (n1, k1) = (n1 + 1, k1 + 1)
+
+        let base_case_strategy = (0, 1)
+
+        let base_case_strategy_options = (0, 0)
+
+      end)
+
       module F1 = functor
           (Strategy: sig
             type strategy
@@ -740,6 +842,8 @@ module NK_Rel =
       let get_distinguishing_formulae1 = F3.get_strategies1
 
       let get_distinguishing_formulae2 = F3.get_strategies2
+
+      module F4 = F1(S2)
 
       let
 	  get_nk_pairs
