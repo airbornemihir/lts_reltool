@@ -262,7 +262,7 @@ module NK_Rel =
 
       let create_yes_table () = []
 
-      module S1 = (struct
+      module Strategy_with_formula = (struct
 
         type strategy = int * int * hm_formula
 
@@ -301,7 +301,7 @@ module NK_Rel =
 
         let create_no_table () = []
 
-        let add_winning_strategy partial_l_q (n, k, f) =
+        let add_winning_strategy list (n, k, f) =
           List.map
             (function
           (max_n,
@@ -316,10 +316,10 @@ module NK_Rel =
               then k
               else max_k),
              f::formula_list))
-            partial_l_q
+            list
 
         let add_optimal_winning_strategy, add_optimal_winning_strategy_options =
-          let f
+          let g
               list
               (n, k, f) =
             if
@@ -336,25 +336,25 @@ module NK_Rel =
                      (n1 < n) || (k1 < k))
                    list)
           in
-          (f, f)
+          g, g
 
         let add_formula_base_case
             label
-            partial_l_p
+            list
             (n, k, formula_list) =
           if
             (List.exists
                (fun (n1, k1, f1) ->
                  (n1 <= n) && (k1 <= k))
-               partial_l_p)
+               list)
           then
-            partial_l_p
+            list
           else
             (n, k, DIAMOND (label, AND formula_list)) ::
               (List.filter
                  (fun (n1, k1, f1) ->
                    (n1 < n) || (k1 < k))
-                 partial_l_p)
+                 list)
 
         let add_round (n1, k1, f1) = (n1, k1 + 1, f1)
 
@@ -366,7 +366,7 @@ module NK_Rel =
 
       end)
 
-      module S2 = (struct
+      module Strategy_without_formula = (struct
 
         type strategy = int * int
 
@@ -405,7 +405,7 @@ module NK_Rel =
 
         let create_no_table () = []
 
-        let add_winning_strategy partial_l_q (n, k) =
+        let add_winning_strategy list (n, k) =
           List.map
             (function
           (max_n,
@@ -418,10 +418,10 @@ module NK_Rel =
                  max_k < k
               then k
               else max_k)))
-            partial_l_q
+            list
 
         let add_optimal_winning_strategy, add_optimal_winning_strategy_options =
-          let f
+          let g
               list
               (n, k) =
             if
@@ -438,25 +438,25 @@ module NK_Rel =
                      (n1 < n) || (k1 < k))
                    list)
           in
-          (f, f)
+          g, g
 
         let add_formula_base_case
             label
-            partial_l_p
+            list
             (n, k) =
           if
             (List.exists
                (fun (n1, k1) ->
                  (n1 <= n) && (k1 <= k))
-               partial_l_p)
+               list)
           then
-            partial_l_p
+            list
           else
             (n, k) ::
               (List.filter
                  (fun (n1, k1) ->
                    (n1 < n) || (k1 < k))
-                 partial_l_p)
+                 list)
 
         let add_round (n1, k1) = (n1, k1 + 1)
 
@@ -468,7 +468,7 @@ module NK_Rel =
 
       end)
 
-      module F1 = functor
+      module Relation_functor = functor
           (Strategy: sig
             type strategy
             type no_table_entry
@@ -807,8 +807,18 @@ module NK_Rel =
 
           end)
 
-      module S3 = F1(S1)
-      let get_distinguishing_formulae = S3.get_strategies
+      module Relations_with_formulae = Relation_functor(Strategy_with_formula)
+      module Relations_without_formulae = Relation_functor(Strategy_without_formula)
+
+      let get_distinguishing_formulae = Relations_with_formulae.get_strategies
+
+      let get_distinguishing_formulae1 = Relations_with_formulae.get_strategies1
+
+      let get_distinguishing_formulae2 = Relations_with_formulae.get_strategies2
+
+      let get_nk_pairs1 = Relations_without_formulae.get_strategies1
+
+      let get_nk_pairs2 = Relations_without_formulae.get_strategies2
 
       let rec
 	  checknkRel
@@ -838,16 +848,6 @@ module NK_Rel =
         with
         | ([], _, _) -> true
         | (_, _, _) -> false
-
-      let get_distinguishing_formulae1 = S3.get_strategies1
-
-      let get_distinguishing_formulae2 = S3.get_strategies2
-
-      module S4 = F1(S2)
-
-      let get_nk_pairs1 = S4.get_strategies1
-
-      let get_nk_pairs2 = S4.get_strategies2
 
       let
 	  get_nk_relation
