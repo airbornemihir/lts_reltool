@@ -239,14 +239,6 @@ module NK_Rel =
             (p1 = p) && (q1 = q) && (n1 >= n) && (k1 >= k))
           yes_table
 
-      let fetch_entries_no_table no_table p q n k =
-        List.map
-          (function (_, _, n1, k1, f1) -> (n1, k1, f1))
-          (List.filter
-             (function (p1, q1, n1, k1, f1) ->
-               (p1 = p) && (q1 = q) && (n1 <= n) && (k1 <= k))
-             no_table)
-
       let add_entry_yes_table yes_table p q n k =
         if
           (List.exists
@@ -262,21 +254,6 @@ module NK_Rel =
                (p1 <> p) || (q1 <> q) || (n1 > n) || (k1 > k))
              yes_table)
 
-      let add_entry_no_table no_table p q n k f =
-        if
-          (List.exists
-             (function (p1, q1, n1, k1, f1) ->
-               (p1 = p) && (q1 = q) && (n1 <= n) && (k1 <= k))
-             no_table)
-        then
-          no_table
-        else
-          ((p, q, n, k, f)::
-              (List.filter
-                 (function (p1, q1, n1, k1, f1) ->
-                   (p1 <> p) || (q1 <> q) || (n1 < n) || (k1 < k))
-                 no_table))
-
       let remove_entry_yes_table yes_table p q n k =
         List.filter
           (function (p1, q1, n1, k1) ->
@@ -285,293 +262,553 @@ module NK_Rel =
 
       let create_yes_table () = []
 
-      let create_no_table () = []
+      module S1 = (struct
 
-      (* we assume that p is the challenger's position in lts1 and q is
-         the defender's position in lts2. thus, if the challenger switches to
-         q now and makes a move in lts2, then we use up one alternation,
-         otherwise we have the same number of alternations remaining.*)
-      let rec
-	  get_distinguishing_formulae
-	  lts1
-	  lts2
-	  p
-	  q
-	  n
-	  k
-          yes_table
-          no_table
-          (* rel is some specific relation, can be a prebisim or a
-             simulation equivalence or a bisimulation *)
-	  rel = (
-        if k = 0 then ([], yes_table, no_table)
-        else if check_entry_yes_table yes_table p q n k  
-        then ([], yes_table, no_table)
-        else
-          match
-            fetch_entries_no_table no_table p q n k
-          with
-          | hd::tl -> (hd::tl, yes_table, no_table) 
-          | [] -> (
-	    let yes_table = add_entry_yes_table yes_table p q n k in
-	      (* for each successor p' of p, check if that is simulated by
-                 a successor q' of q *)
-	    let
-	        (v_p, l_p, yes_table, no_table) =
-                (* This fold deals with all the successors of p,
-                   universal quantification.*)
-              (LTS.fold_succ_e
-	         (fun e_p (partial_v_p, partial_l_p, yes_table, no_table) ->
-                   let
-                       (match_found, v_q, l_q,
-                        yes_table,
-                        no_table) =
-                       (* This fold deals with all the successors of q,
-                          existential quantification.*)
-                     (LTS.fold_succ_e
-		        (fun e_q
-                          (partial_match_found,
-                           partial_v_q,
-                           partial_l_q,
-                           yes_table,
-                           no_table) ->
-                            if (LTS.A.compare (LTS.E.label e_p) (LTS.E.label e_q) <> 0)
-                            then
-                              (partial_match_found,
-                               partial_v_q,
-                               partial_l_q,
-                               yes_table,
-                               no_table)
-                            else
-                              let
-                                    (* this is when we do not switch sides.*)
-                                  (l_pp,
-                                   yes_table,
-                                   no_table) =
-                                (get_distinguishing_formulae
-		                   lts1
-		                   lts2
-		                   (LTS.E.dst e_p)
-		                   (LTS.E.dst e_q)
-		                   (n)
-		                   (k - 1)
-                                   yes_table
-                                   no_table
-		                   rel)
-                              in
-                              let
-                                  v_pp =
-                                (match
-                                    l_pp
-                                 with
-                                 | [] -> true
-                                 | _ -> false
-                                )
-                              in
-                              let
-                                  l_pp =
-                                (List.map
-                                   (fun (n1, k1, f1) ->
-                                     (n1, k1 + 1, f1))
-                                   l_pp) (* one more round. *)
-                              in
-                              let
-                                    (* this is when we switch sides.*)
-                                  (l_qq,
-                                   yes_table,
-                                   no_table) =
-                                if
-                                  (n = 0)
-                                then
-                                  ([],
-                                   yes_table,
-                                   no_table)
-                                else
-                                  (get_distinguishing_formulae
-		                     lts2
-		                     lts1
-		                     (LTS.E.dst e_q)
-		                     (LTS.E.dst e_p)
-		                     (n - 1)
-		                     (k - 1)
-                                     yes_table
-                                     no_table
-		                     rel)
-                              in
-                              let
-                                  v_qq =
-                                (match
-                                    l_qq
-                                 with
-                                 | [] -> true
-                                 | _ -> false
-                                )
-                              in
-                              let
-                                  l_qq =
-                                (List.map
-                                   (fun (n1, k1, f1) ->
-                                     (n1 + 1, k1 + 1, negation f1))
-                                   l_qq) (* one more round, one more alternation. *)
-                              in
-                              let
-                                  l_pp_qq =
-                                List.fold_left
-                                  (fun partial_l_pp_qq (n, k, f) ->
-                                    if
-                                      List.exists
-                                        (fun (n1, k1, f1) ->
-                                          (n1 <= n) && (k1 <= k))
-                                        partial_l_pp_qq
-                                    then
-                                      partial_l_pp_qq
-                                    else
-                                      (n, k, f) ::
-                                        (List.filter
-                                           (fun (n1, k1, f1) ->
-                                             (n1 < n) || (k1 < k))
-                                           partial_l_pp_qq)
-                                  )
-                                  []
-                                  (l_pp @ l_qq)
-                              in
-                              let
-                                  partial_v_q = partial_v_q || (v_pp && v_qq)
-                              in
-                              let
-                                  partial_l_q =
-                                (if
-                                    partial_v_q
-                                 then
-                                    []
-                                 else
-                                    (List.concat
-                                       (List.map
-                                          (function (n, k, f) ->
-                                            List.map
-                                              (function
-                                            (max_n,
-                                             max_k,
-                                             formula_list) ->
-                                              ((if
-                                                  max_n < n
-                                                then n
-                                                else max_n),
-                                               (if
-                                                   max_k < k
-                                                then k
-                                                else max_k),
-                                               f::formula_list))
-                                              partial_l_q
-                                          )
-                                          l_pp_qq)))
-                              in
-                                (* this is where we get rid of cruft
-                                   in the cartesian product we have
-                                   built so far.*)
-                              let
-                                  partial_l_q =
-                                (List.fold_left
-                                   (fun partial_l_q (n, k, f) ->
-                                     if
-                                       List.exists
-                                         (fun (n1, k1, f1) ->
-                                           (n1 <= n) && (k1 <= k))
-                                         partial_l_q
-                                     then
-                                       partial_l_q
-                                     else
-                                       (n, k, f)::
-                                         (List.filter
-                                            (fun (n1, k1, f1) ->
-                                              (n1 < n) || (k1 < k))
-                                            partial_l_q
-                                         )
-                                   )
-                                   []
-                                   partial_l_q)
-                              in
-		              (true,
-                               partial_v_q,
-                               partial_l_q,
-                               yes_table,
-                               no_table
-                              )
-		        )
-		        lts2
-		        q
-		        (false, false, [(0, 0, [])], yes_table, no_table)
-	             )
-                   in
-                   let
-                       l_q
-                       =
-                     if
-                       (not match_found)
-                     then
-                         (* this is the base case for entry into the
-                            no_table. The challenger can perform one move
-                            right here which the defender cannot
-                            replicate. *)
-                         (* [(0, 1, [DIAMOND(LTS.E.label e_p, AND[])])] *)
-                       [(0, 1, [AND[]])]
-                     else
-                       l_q
-                   in
-	           (partial_v_p && v_q, (* this expression works
-                                           fine even for the case
-                                           where we have
-                                           match_found = false,
-                                           because there is a
-                                           false in the base case
-                                           which makes the and
-                                           thingy false as well. *)
-                    List.fold_left
-                      (fun partial_l_p (n, k, formula_list) ->
-                        if
-                          (List.exists
-                             (fun (n1, k1, f1) ->
-                               (n1 <= n) && (k1 <= k))
-                             partial_l_p)
-                        then
-                          partial_l_p
-                        else
-                          (n, k, DIAMOND (LTS.E.label e_p, AND formula_list)) ::
-                            (List.filter
-                               (fun (n1, k1, f1) ->
-                                 (n1 < n) || (k1 < k))
-                               partial_l_p)
-                      )
-                      partial_l_p
-                      l_q,  
-                    yes_table,
-                    no_table
-                   )
-	         )
-	         lts1
-	         p
-	         (true, [], yes_table, no_table)
-	      )
-            in
-            if
-              v_p
-            then
-	      ([], (* earlier this was l_p, which seems wrong.*)
-               yes_table,
+        type strategy = int * int * hm_formula
+
+        type strategy_options = int * int * hm_formula list
+
+        type no_table_entry = LTS.V.t * LTS.V.t * strategy
+
+        type no_table = no_table_entry list
+
+        let add_entry_no_table
+            no_table
+            p
+            q
+            (n, k, f) =
+          if
+            (List.exists
+               (function (p1, q1, (n1, k1, f1)) ->
+                 (p1 = p) && (q1 = q) && (n1 <= n) && (k1 <= k))
                no_table)
+          then
+            no_table
+          else
+            ((p, q, (n, k, f))::
+                (List.filter
+                   (function (p1, q1, (n1, k1, f1)) ->
+                     (p1 <> p) || (q1 <> q) || (n1 < n) || (k1 < k))
+                   no_table))
+
+        let fetch_entries_no_table no_table p q n k =
+          List.map
+            (function (_, _, (n1, k1, f1)) -> (n1, k1, f1))
+            (List.filter
+               (function (p1, q1, (n1, k1, f1)) ->
+                 (p1 = p) && (q1 = q) && (n1 <= n) && (k1 <= k))
+               no_table)
+
+        let create_no_table () = []
+
+        let add_winning_strategy partial_l_q (n, k, f) =
+          List.map
+            (function
+          (max_n,
+           max_k,
+           formula_list) ->
+            ((if
+                max_n < n
+              then n
+              else max_n),
+             (if
+                 max_k < k
+              then k
+              else max_k),
+             f::formula_list))
+            partial_l_q
+
+        let add_optimal_winning_strategy, add_optimal_winning_strategy_options =
+          let f
+              list
+              (n, k, f) =
+            if
+              List.exists
+                (fun (n1, k1, f1) ->
+                  (n1 <= n) && (k1 <= k))
+                list
+            then
+              list
             else
-	      (l_p, (* we need to return a list of pairs of the form (n,
-                       k) which denotes the various pairs of values of n
-                       and k for which the challenger wins.*)
-               remove_entry_yes_table yes_table p q n k,
-               List.fold_left
-                 (fun no_table (n1, k1, f1) ->
-                   add_entry_no_table no_table p q n1 k1 f1)
-                 no_table
-                 l_p
-              )
-          )
-      )
+              (n, k, f) ::
+                (List.filter
+                   (fun (n1, k1, f1) ->
+                     (n1 < n) || (k1 < k))
+                   list)
+          in
+          (f, f)
+
+        let add_formula_base_case
+            label
+            partial_l_p
+            (n, k, formula_list) =
+          if
+            (List.exists
+               (fun (n1, k1, f1) ->
+                 (n1 <= n) && (k1 <= k))
+               partial_l_p)
+          then
+            partial_l_p
+          else
+            (n, k, DIAMOND (label, AND formula_list)) ::
+              (List.filter
+                 (fun (n1, k1, f1) ->
+                   (n1 < n) || (k1 < k))
+                 partial_l_p)
+
+        let add_round (n1, k1, f1) = (n1, k1 + 1, f1)
+
+        let add_round_and_alternation (n1, k1, f1) = (n1 + 1, k1 + 1, negation f1)
+
+        let base_case_strategy = (0, 1, [AND[]])
+
+        let base_case_strategy_options = (0, 0, [])
+
+      end)
+
+      module S2 = (struct
+
+        type strategy = int * int
+
+        type strategy_options = int * int
+
+        type no_table_entry = LTS.V.t * LTS.V.t * strategy
+
+        type no_table = no_table_entry list
+
+        let add_entry_no_table
+            no_table
+            p
+            q
+            (n, k) =
+          if
+            (List.exists
+               (function (p1, q1, (n1, k1)) ->
+                 (p1 = p) && (q1 = q) && (n1 <= n) && (k1 <= k))
+               no_table)
+          then
+            no_table
+          else
+            ((p, q, (n, k))::
+                (List.filter
+                   (function (p1, q1, (n1, k1)) ->
+                     (p1 <> p) || (q1 <> q) || (n1 < n) || (k1 < k))
+                   no_table))
+
+        let fetch_entries_no_table no_table p q n k =
+          List.map
+            (function (_, _, (n1, k1)) -> (n1, k1))
+            (List.filter
+               (function (p1, q1, (n1, k1)) ->
+                 (p1 = p) && (q1 = q) && (n1 <= n) && (k1 <= k))
+               no_table)
+
+        let create_no_table () = []
+
+        let add_winning_strategy partial_l_q (n, k) =
+          List.map
+            (function
+          (max_n,
+           max_k) ->
+            ((if
+                max_n < n
+              then n
+              else max_n),
+             (if
+                 max_k < k
+              then k
+              else max_k)))
+            partial_l_q
+
+        let add_optimal_winning_strategy, add_optimal_winning_strategy_options =
+          let f
+              list
+              (n, k) =
+            if
+              List.exists
+                (fun (n1, k1) ->
+                  (n1 <= n) && (k1 <= k))
+                list
+            then
+              list
+            else
+              (n, k) ::
+                (List.filter
+                   (fun (n1, k1) ->
+                     (n1 < n) || (k1 < k))
+                   list)
+          in
+          (f, f)
+
+        let add_formula_base_case
+            label
+            partial_l_p
+            (n, k) =
+          if
+            (List.exists
+               (fun (n1, k1) ->
+                 (n1 <= n) && (k1 <= k))
+               partial_l_p)
+          then
+            partial_l_p
+          else
+            (n, k) ::
+              (List.filter
+                 (fun (n1, k1) ->
+                   (n1 < n) || (k1 < k))
+                 partial_l_p)
+
+        let add_round (n1, k1) = (n1, k1 + 1)
+
+        let add_round_and_alternation (n1, k1) = (n1 + 1, k1 + 1)
+
+        let base_case_strategy = (0, 1)
+
+        let base_case_strategy_options = (0, 0)
+
+      end)
+
+      module F1 = functor
+          (Strategy: sig
+            type strategy
+            type no_table_entry
+            type no_table
+            type strategy_options
+            val add_entry_no_table:
+              no_table ->
+              LTS.V.t ->
+              LTS.V.t ->
+              strategy ->
+              no_table
+            val fetch_entries_no_table:
+              no_table ->
+              LTS.V.t ->
+              LTS.V.t ->
+              int ->
+              int ->
+              strategy list
+            val create_no_table:
+              unit ->
+              no_table
+            val add_winning_strategy:
+              strategy_options list ->
+              strategy ->
+              strategy_options list
+            val add_optimal_winning_strategy:
+              strategy list -> strategy -> strategy list
+            val add_optimal_winning_strategy_options:
+              strategy_options list -> strategy_options -> strategy_options list
+            val add_formula_base_case:
+              LTS.A.t ->
+              strategy list ->
+              strategy_options ->
+              strategy list
+            val add_round: strategy -> strategy
+            val add_round_and_alternation: strategy -> strategy
+            val base_case_strategy: strategy_options
+            val base_case_strategy_options: strategy_options
+          end) -> (struct
+            open Strategy
+
+            (* we assume that p is the challenger's position in lts1 and q is
+               the defender's position in lts2. thus, if the challenger switches to
+               q now and makes a move in lts2, then we use up one alternation,
+               otherwise we have the same number of alternations remaining.*)
+            let rec
+	        get_strategies
+	        lts1
+	        lts2
+	        p
+	        q
+	        n
+	        k
+                yes_table
+                no_table
+                (* rel is some specific relation, can be a prebisim or a
+                   simulation equivalence or a bisimulation *)
+	        rel = (
+              if k = 0 then ([], yes_table, no_table)
+              else if check_entry_yes_table yes_table p q n k  
+              then ([], yes_table, no_table)
+              else
+                match
+                  fetch_entries_no_table no_table p q n k
+                with
+                | hd::tl -> (hd::tl, yes_table, no_table) 
+                | [] -> (
+	          let yes_table = add_entry_yes_table yes_table p q n k in
+	          (* for each successor p' of p, check if that is simulated by
+                     a successor q' of q *)
+	          let
+	              (v_p, l_p, yes_table, no_table) =
+                    (* This fold deals with all the successors of p,
+                       universal quantification.*)
+                    (LTS.fold_succ_e
+	               (fun e_p (partial_v_p, partial_l_p, yes_table, no_table) ->
+                         let
+                             (match_found, v_q, l_q,
+                              yes_table,
+                              no_table) =
+                           (* This fold deals with all the successors of q,
+                              existential quantification.*)
+                           (LTS.fold_succ_e
+		              (fun e_q
+                                (partial_match_found,
+                                 partial_v_q,
+                                 partial_l_q,
+                                 yes_table,
+                                 no_table) ->
+                                  if (LTS.A.compare (LTS.E.label e_p) (LTS.E.label e_q) <> 0)
+                                  then
+                                    (partial_match_found,
+                                     partial_v_q,
+                                     partial_l_q,
+                                     yes_table,
+                                     no_table)
+                                  else
+                                    let
+                                        (* this is when we do not switch sides.*)
+                                        (l_pp,
+                                         yes_table,
+                                         no_table) =
+                                      (get_strategies
+		                         lts1
+		                         lts2
+		                         (LTS.E.dst e_p)
+		                         (LTS.E.dst e_q)
+		                         (n)
+		                         (k - 1)
+                                         yes_table
+                                         no_table
+		                         rel)
+                                    in
+                                    let
+                                        v_pp =
+                                      (match
+                                          l_pp
+                                       with
+                                       | [] -> true
+                                       | _ -> false
+                                      )
+                                    in
+                                    let
+                                        l_pp =
+                                      (List.map
+                                         add_round
+                                         l_pp) (* one more round. *)
+                                    in
+                                    let
+                                        (* this is when we switch sides.*)
+                                        (l_qq,
+                                         yes_table,
+                                         no_table) =
+                                      if
+                                        (n = 0)
+                                      then
+                                        ([],
+                                         yes_table,
+                                         no_table)
+                                      else
+                                        (get_strategies
+		                           lts2
+		                           lts1
+		                           (LTS.E.dst e_q)
+		                           (LTS.E.dst e_p)
+		                           (n - 1)
+		                           (k - 1)
+                                           yes_table
+                                           no_table
+		                           rel)
+                                    in
+                                    let
+                                        v_qq =
+                                      (match
+                                          l_qq
+                                       with
+                                       | [] -> true
+                                       | _ -> false
+                                      )
+                                    in
+                                    let
+                                        l_qq =
+                                      (List.map
+                                         add_round_and_alternation
+                                         l_qq) (* one more round, one more alternation. *)
+                                    in
+                                    let
+                                        l_pp_qq =
+                                      List.fold_left
+                                        add_optimal_winning_strategy
+                                        []
+                                        (l_pp @ l_qq)
+                                    in
+                                    let
+                                        partial_v_q = partial_v_q || (v_pp && v_qq)
+                                    in
+                                    let
+                                        partial_l_q =
+                                      (if
+                                          partial_v_q
+                                       then
+                                          []
+                                       else
+                                          (List.concat
+                                             (List.map
+                                                (add_winning_strategy partial_l_q)
+                                                l_pp_qq)))
+                                    in
+                                    (* this is where we get rid of cruft
+                                       in the cartesian product we have
+                                       built so far.*)
+                                    let
+                                        partial_l_q =
+                                      (List.fold_left
+                                         add_optimal_winning_strategy_options
+                                         []
+                                         partial_l_q)
+                                    in
+		                    (true,
+                                     partial_v_q,
+                                     partial_l_q,
+                                     yes_table,
+                                     no_table
+                                    )
+		              )
+		              lts2
+		              q
+		              (false, false, [base_case_strategy_options], yes_table, no_table)
+	                   )
+                         in
+                         let
+                             l_q
+                             =
+                           if
+                             (not match_found)
+                           then
+                             (* this is the base case for entry into the
+                                no_table. The challenger can perform one move
+                                right here which the defender cannot
+                                replicate. *)
+                             [base_case_strategy]
+                           else
+                             l_q
+                         in
+	                 (partial_v_p && v_q, (* this expression works
+                                                 fine even for the case
+                                                 where we have
+                                                 match_found = false,
+                                                 because there is a
+                                                 false in the base case
+                                                 which makes the and
+                                                 thingy false as well. *)
+                          List.fold_left
+                            (add_formula_base_case
+                               (LTS.E.label e_p))
+                            partial_l_p
+                            l_q,
+                          yes_table,
+                          no_table
+                         )
+	               )
+	               lts1
+	               p
+	               (true, [], yes_table, no_table)
+	            )
+                  in
+                  if
+                    v_p
+                  then
+	            ([], (* earlier this was l_p, which seems wrong.*)
+                     yes_table,
+                     no_table)
+                  else
+	            (l_p, (* we need to return a list of pairs of the form (n,
+                             k) which denotes the various pairs of values of n
+                             and k for which the challenger wins.*)
+                     remove_entry_yes_table yes_table p q n k,
+                     List.fold_left
+                       (fun no_table ->
+                         add_entry_no_table no_table p q)
+                       no_table
+                       l_p
+                    )
+                )
+            )
+
+            let
+	        get_strategies1
+	          lts1
+	          lts2
+	          p
+	          q
+	          n
+	          k
+	        =
+	      let
+	          (yes_table, no_table) = (create_yes_table (), create_no_table ())
+	      in
+	      let
+	          (l1, yes_table, no_table) = 
+	        get_strategies
+	          lts1
+	          lts2
+	          p
+	          q
+	          n
+	          k
+                  yes_table
+                  no_table
+	          ()
+	      in
+	      l1
+
+            let
+	        get_strategies2
+	          lts1
+	          lts2
+	          p
+	          q
+	          n
+	          k
+	        =
+	      let
+	          (yes_table, no_table) = (create_yes_table (), create_no_table ())
+	      in
+	      let
+	          (l1, yes_table, no_table) = 
+	        get_strategies
+	          lts1
+	          lts2
+	          p
+	          q
+	          n
+	          k
+                  yes_table
+                  no_table
+	          ()
+	      in
+	      let
+	          (l2, yes_table, no_table) = 
+	        get_strategies
+	          lts2
+	          lts1
+	          q
+	          p
+	          n
+	          k
+                  yes_table
+                  no_table
+	          ()
+	      in
+	      List.fold_left
+	        add_optimal_winning_strategy
+	        []
+	        (l1 @ l2)
+
+          end)
+
+      module S3 = F1(S1)
+      let get_distinguishing_formulae = S3.get_strategies
 
       let rec
 	  checknkRel
@@ -602,118 +839,15 @@ module NK_Rel =
         | ([], _, _) -> true
         | (_, _, _) -> false
 
-      let
-	  get_distinguishing_formulae1
-	    lts1
-	    lts2
-	    p
-	    q
-	    n
-	    k
-	  =
-	let
-	    (yes_table, no_table) = (create_yes_table (), create_no_table ())
-	in
-	let
-	    (l1, yes_table, no_table) = 
-	  get_distinguishing_formulae
-	    lts1
-	    lts2
-	    p
-	    q
-	    n
-	    k
-            yes_table
-            no_table
-	    ()
-	in
-	l1
+      let get_distinguishing_formulae1 = S3.get_strategies1
 
-      let
-	  get_distinguishing_formulae2
-	    lts1
-	    lts2
-	    p
-	    q
-	    n
-	    k
-	  =
-	let
-	    (yes_table, no_table) = (create_yes_table (), create_no_table ())
-	in
-	let
-	    (l1, yes_table, no_table) = 
-	  get_distinguishing_formulae
-	    lts1
-	    lts2
-	    p
-	    q
-	    n
-	    k
-            yes_table
-            no_table
-	    ()
-	in
-	let
-	    (l2, yes_table, no_table) = 
-	  get_distinguishing_formulae
-	    lts2
-	    lts1
-	    q
-	    p
-	    n
-	    k
-            yes_table
-            no_table
-	    ()
-	in
-	List.fold_left
-	  (fun list (n, k, f) ->
-	    if
-	      (List.exists
-		 (fun (n1, k1, f1) -> (n1 <= n) && (k1 <= k))
-		 list)
-	    then
-	      list
-	    else
-	      (n, k, f) ::
-		(List.filter
-		   (fun (n1, k1, f1) -> (n1 < n) || (k1 < k))
-		   list))
-	  []
-	  (l1 @ l2)
+      let get_distinguishing_formulae2 = S3.get_strategies2
 
-      let
-	  get_nk_pairs
-	    f
-	    lts1
-	    lts2
-	    p
-	    q
-	    n
-	    k
-	  =
-	List.map
-	  (fun (n, k, f) -> (n, k))
-	  (f
-	     lts1
-	     lts2
-	     p
-	     q
-	     n
-	     k)
+      module S4 = F1(S2)
 
-      let
-	  get_nk_pairs1
-	  =
-	get_nk_pairs
-	  get_distinguishing_formulae1
+      let get_nk_pairs1 = S4.get_strategies1
 
-      let
-	  get_nk_pairs2
-	  =
-	get_nk_pairs
-	  get_distinguishing_formulae2
+      let get_nk_pairs2 = S4.get_strategies2
 
       let
 	  get_nk_relation
