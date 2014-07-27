@@ -6,13 +6,13 @@ sig
   val state_name: t -> string
 end
 
-module type LTS_ACTION_TYPE = 
+module type LTS_ACTION_TYPE =
 sig
   include Sig.ORDERED_TYPE_DFT
   type action = t
   val action_name: action -> string
 end
-  
+
 module type LTS_TYPE =
 sig
   module A: LTS_ACTION_TYPE
@@ -27,8 +27,8 @@ sig
   val edge_attributes : E.t -> Graphviz.DotAttributes.edge list
 end
 
-module LTS_Functor = 
-  functor (S : LTS_STATE_TYPE) -> 
+module LTS_Functor =
+  functor (S : LTS_STATE_TYPE) ->
     functor (A : LTS_ACTION_TYPE) ->
       (struct
 
@@ -37,7 +37,7 @@ module LTS_Functor =
         include Base
 
         module A = A
-          
+
         let vertex_name = S.state_name
 
         type action = A.t
@@ -84,7 +84,7 @@ module NK_yes_table_functor =
               temp1
         end
       )
-        
+
       include StatePairMap
 
       let conditional_add
@@ -152,20 +152,20 @@ module HM_Formula =
                 else
                   (let
                       formula = minimise formula
-                  in
-                  if
-                    formula = terminator
-                  then
-                    (true, [])
-                  else
-                    (false,
-                     match
-                       (extract_e formula)
-                     with
-                     | Some partial_formula_list ->
-                       partial_formula_list @ formula_list
-                     | None ->
-                       formula::formula_list)))
+                   in
+                   if
+                     formula = terminator
+                   then
+                     (true, [])
+                   else
+                     (false,
+                      match
+                        (extract_e formula)
+                      with
+                      | Some partial_formula_list ->
+                        partial_formula_list @ formula_list
+                      | None ->
+                        formula::formula_list)))
               (false, [])
               formula_list
           in
@@ -219,7 +219,7 @@ module HM_Formula =
           ^ ")"
         | OR [] -> "ff"
         | OR formula_list ->
-          "(" ^ 
+          "(" ^
             (String.concat
                " || "
                (List.map translate formula_list))
@@ -248,11 +248,11 @@ module NK_Rel =
         then
           yes_table
         else
-        (p, q, n, k)::
-          (List.filter
-             (function (p1, q1, n1, k1) ->
-               (p1 <> p) || (q1 <> q) || (n1 > n) || (k1 > k))
-             yes_table)
+          (p, q, n, k)::
+            (List.filter
+               (function (p1, q1, n1, k1) ->
+                 (p1 <> p) || (q1 <> q) || (n1 > n) || (k1 > k))
+               yes_table)
 
       let remove_entry_yes_table yes_table p q n k =
         List.filter
@@ -528,13 +528,13 @@ module NK_Rel =
                    simulation equivalence or a bisimulation *)
 	        rel = (
               if k = 0 then ([], yes_table, no_table)
-              else if check_entry_yes_table yes_table p q n k  
+              else if check_entry_yes_table yes_table p q n k
               then ([], yes_table, no_table)
               else
                 match
                   fetch_entries_no_table no_table p q n k
                 with
-                | hd::tl -> (hd::tl, yes_table, no_table) 
+                | hd::tl -> (hd::tl, yes_table, no_table)
                 | [] -> (
 	          let yes_table = add_entry_yes_table yes_table p q n k in
 	          (* for each successor p' of p, check if that is simulated by
@@ -748,7 +748,7 @@ module NK_Rel =
 	          (yes_table, no_table) = (create_yes_table (), create_no_table ())
 	      in
 	      let
-	          (l1, yes_table, no_table) = 
+	          (l1, yes_table, no_table) =
 	        get_strategies
 	          lts1
 	          lts2
@@ -775,7 +775,7 @@ module NK_Rel =
 	          (yes_table, no_table) = (create_yes_table (), create_no_table ())
 	      in
 	      let
-	          (l1, yes_table, no_table) = 
+	          (l1, yes_table, no_table) =
 	        get_strategies
 	          lts1
 	          lts2
@@ -788,7 +788,7 @@ module NK_Rel =
 	          ()
 	      in
 	      let
-	          (l2, yes_table, no_table) = 
+	          (l2, yes_table, no_table) =
 	        get_strategies
 	          lts2
 	          lts1
@@ -832,18 +832,18 @@ module NK_Rel =
           no_table
           (* rel is some specific relation, can be a prebisim or a
              simulation equivalence or a bisimulation *)
-	  rel = 
+	  rel =
         match
           (get_distinguishing_formulae
-	    lts1
-	    lts2
-	    p
-	    q
-	    n
-	    k
-            yes_table
-            no_table
-            rel
+	     lts1
+	     lts2
+	     p
+	     q
+	     n
+	     k
+             yes_table
+             no_table
+             rel
           )
         with
         | ([], _, _) -> true
