@@ -262,109 +262,109 @@ module NK_Rel =
 
       let create_yes_table () = []
 
-      module Strategy_with_formula = (struct
+      (* module Strategy_with_formula = (struct *)
 
-        type strategy = int * int * hm_formula
+      (*   type strategy = int * int * hm_formula *)
 
-        type strategy_options = int * int * hm_formula list
+      (*   type strategy_options = int * int * hm_formula list *)
 
-        type no_table_entry = LTS.V.t * LTS.V.t * strategy
+      (*   type no_table_entry = LTS.V.t * LTS.V.t * strategy *)
 
-        type no_table = no_table_entry list
+      (*   type no_table = no_table_entry list *)
 
-        let add_entry_no_table
-            no_table
-            p
-            q
-            (n, k, f) =
-          if
-            (List.exists
-               (function (p1, q1, (n1, k1, f1)) ->
-                 (p1 = p) && (q1 = q) && (n1 <= n) && (k1 <= k))
-               no_table)
-          then
-            no_table
-          else
-            ((p, q, (n, k, f))::
-                (List.filter
-                   (function (p1, q1, (n1, k1, f1)) ->
-                     (p1 <> p) || (q1 <> q) || (n1 < n) || (k1 < k))
-                   no_table))
+      (*   let add_entry_no_table *)
+      (*       no_table *)
+      (*       p *)
+      (*       q *)
+      (*       (n, k, f) = *)
+      (*     if *)
+      (*       (List.exists *)
+      (*          (function (p1, q1, (n1, k1, f1)) -> *)
+      (*            (p1 = p) && (q1 = q) && (n1 <= n) && (k1 <= k)) *)
+      (*          no_table) *)
+      (*     then *)
+      (*       no_table *)
+      (*     else *)
+      (*       ((p, q, (n, k, f)):: *)
+      (*           (List.filter *)
+      (*              (function (p1, q1, (n1, k1, f1)) -> *)
+      (*                (p1 <> p) || (q1 <> q) || (n1 < n) || (k1 < k)) *)
+      (*              no_table)) *)
 
-        let fetch_entries_no_table no_table p q n k =
-          List.map
-            (function (_, _, (n1, k1, f1)) -> (n1, k1, f1))
-            (List.filter
-               (function (p1, q1, (n1, k1, f1)) ->
-                 (p1 = p) && (q1 = q) && (n1 <= n) && (k1 <= k))
-               no_table)
+      (*   let fetch_entries_no_table no_table p q n k = *)
+      (*     List.map *)
+      (*       (function (_, _, (n1, k1, f1)) -> (n1, k1, f1)) *)
+      (*       (List.filter *)
+      (*          (function (p1, q1, (n1, k1, f1)) -> *)
+      (*            (p1 = p) && (q1 = q) && (n1 <= n) && (k1 <= k)) *)
+      (*          no_table) *)
 
-        let create_no_table () = []
+      (*   let create_no_table () = [] *)
 
-        let add_winning_strategy list (n, k, f) =
-          List.map
-            (function
-          (max_n,
-           max_k,
-           formula_list) ->
-            ((if
-                max_n < n
-              then n
-              else max_n),
-             (if
-                 max_k < k
-              then k
-              else max_k),
-             f::formula_list))
-            list
+      (*   let add_winning_strategy list (n, k, f) = *)
+      (*     List.map *)
+      (*       (function *)
+      (*     (max_n, *)
+      (*      max_k, *)
+      (*      formula_list) -> *)
+      (*       ((if *)
+      (*           max_n < n *)
+      (*         then n *)
+      (*         else max_n), *)
+      (*        (if *)
+      (*            max_k < k *)
+      (*         then k *)
+      (*         else max_k), *)
+      (*        f::formula_list)) *)
+      (*       list *)
 
-        let add_optimal_winning_strategy, add_optimal_winning_strategy_options =
-          let g
-              list
-              (n, k, f) =
-            if
-              List.exists
-                (fun (n1, k1, f1) ->
-                  (n1 <= n) && (k1 <= k))
-                list
-            then
-              list
-            else
-              (n, k, f) ::
-                (List.filter
-                   (fun (n1, k1, f1) ->
-                     (n1 < n) || (k1 < k))
-                   list)
-          in
-          g, g
+      (*   let add_optimal_winning_strategy, add_optimal_winning_strategy_options = *)
+      (*     let g *)
+      (*         list *)
+      (*         (n, k, f) = *)
+      (*       if *)
+      (*         List.exists *)
+      (*           (fun (n1, k1, f1) -> *)
+      (*             (n1 <= n) && (k1 <= k)) *)
+      (*           list *)
+      (*       then *)
+      (*         list *)
+      (*       else *)
+      (*         (n, k, f) :: *)
+      (*           (List.filter *)
+      (*              (fun (n1, k1, f1) -> *)
+      (*                (n1 < n) || (k1 < k)) *)
+      (*              list) *)
+      (*     in *)
+      (*     g, g *)
 
-        let add_formula_base_case
-            label
-            list
-            (n, k, formula_list) =
-          if
-            (List.exists
-               (fun (n1, k1, f1) ->
-                 (n1 <= n) && (k1 <= k))
-               list)
-          then
-            list
-          else
-            (n, k, DIAMOND (label, AND formula_list)) ::
-              (List.filter
-                 (fun (n1, k1, f1) ->
-                   (n1 < n) || (k1 < k))
-                 list)
+      (*   let add_formula_base_case *)
+      (*       label *)
+      (*       list *)
+      (*       (n, k, formula_list) = *)
+      (*     if *)
+      (*       (List.exists *)
+      (*          (fun (n1, k1, f1) -> *)
+      (*            (n1 <= n) && (k1 <= k)) *)
+      (*          list) *)
+      (*     then *)
+      (*       list *)
+      (*     else *)
+      (*       (n, k, DIAMOND (label, AND formula_list)) :: *)
+      (*         (List.filter *)
+      (*            (fun (n1, k1, f1) -> *)
+      (*              (n1 < n) || (k1 < k)) *)
+      (*            list) *)
 
-        let add_round (n1, k1, f1) = (n1, k1 + 1, f1)
+      (*   let add_round (n1, k1, f1) = (n1, k1 + 1, f1) *)
 
-        let add_round_and_alternation (n1, k1, f1) = (n1 + 1, k1 + 1, negation f1)
+      (*   let add_round_and_alternation (n1, k1, f1) = (n1 + 1, k1 + 1, negation f1) *)
 
-        let base_case_strategy = (0, 1, [AND[]])
+      (*   let base_case_strategy = (0, 1, [AND[]]) *)
 
-        let base_case_strategy_options = (0, 0, [])
+      (*   let base_case_strategy_options = (0, 0, []) *)
 
-      end)
+      (* end) *)
 
       module Strategy_without_formula = (struct
 
@@ -807,47 +807,47 @@ module NK_Rel =
 
           end)
 
-      module Relations_with_formulae = Relation_functor(Strategy_with_formula)
+      (* module Relations_with_formulae = Relation_functor(Strategy_with_formula) *)
       module Relations_without_formulae = Relation_functor(Strategy_without_formula)
 
-      let get_distinguishing_formulae = Relations_with_formulae.get_strategies
+      (* let get_distinguishing_formulae = Relations_with_formulae.get_strategies *)
 
-      let get_distinguishing_formulae1 = Relations_with_formulae.get_strategies1
+      (* let get_distinguishing_formulae1 = Relations_with_formulae.get_strategies1 *)
 
-      let get_distinguishing_formulae2 = Relations_with_formulae.get_strategies2
+      (* let get_distinguishing_formulae2 = Relations_with_formulae.get_strategies2 *)
 
       let get_nk_pairs1 = Relations_without_formulae.get_strategies1
 
       let get_nk_pairs2 = Relations_without_formulae.get_strategies2
 
-      let rec
-	  checknkRel
-	  lts1
-	  lts2
-	  p
-	  q
-	  n
-	  k
-          yes_table
-          no_table
-          (* rel is some specific relation, can be a prebisim or a
-             simulation equivalence or a bisimulation *)
-	  rel =
-        match
-          (get_distinguishing_formulae
-	     lts1
-	     lts2
-	     p
-	     q
-	     n
-	     k
-             yes_table
-             no_table
-             rel
-          )
-        with
-        | ([], _, _) -> true
-        | (_, _, _) -> false
+      (* let rec *)
+      (*     checknkRel *)
+      (*     lts1 *)
+      (*     lts2 *)
+      (*     p *)
+      (*     q *)
+      (*     n *)
+      (*     k *)
+      (*     yes_table *)
+      (*     no_table *)
+      (*     (\* rel is some specific relation, can be a prebisim or a *)
+      (*        simulation equivalence or a bisimulation *\) *)
+      (*     rel = *)
+      (*   match *)
+      (*     (get_distinguishing_formulae *)
+      (*        lts1 *)
+      (*        lts2 *)
+      (*        p *)
+      (*        q *)
+      (*        n *)
+      (*        k *)
+      (*        yes_table *)
+      (*        no_table *)
+      (*        rel *)
+      (*     ) *)
+      (*   with *)
+      (*   | ([], _, _) -> true *)
+      (*   | (_, _, _) -> false *)
 
       let
 	  get_nk_relation
@@ -871,17 +871,17 @@ module NK_Rel =
 	| [] -> true
 	| _ -> false
 
-      let
-	  get_nk_relation1
-	  =
-	get_nk_relation
-	  get_distinguishing_formulae1
+      (* let *)
+      (*     get_nk_relation1 *)
+      (*     = *)
+      (*   get_nk_relation *)
+      (*     get_distinguishing_formulae1 *)
 
-      let
-	  get_nk_relation2
-	  =
-	get_nk_relation
-	  get_distinguishing_formulae2
+      (* let *)
+      (*     get_nk_relation2 *)
+      (*     = *)
+      (*   get_nk_relation *)
+      (*     get_distinguishing_formulae2 *)
 
      end)
 

@@ -43,9 +43,9 @@ let _ =
       (fun (argument:string) -> ())
       "-n, -k, --lts1, --lts2, -p and -q are mandatory arguments."
   in
-  if
-    !pairs || !relation
-  then
+  (* if *)
+  (*   !pairs || !relation *)
+  (* then *)
     (let
         result =
        (if
@@ -88,41 +88,41 @@ let _ =
 	 ()
      in
      exit 0)
-  else
-    (let
-        result =
-       (if
-	   !equivalence
-        then
-	   IntIntLTSNK_Rel.get_distinguishing_formulae2
-        else
-	   IntIntLTSNK_Rel.get_distinguishing_formulae1)
-         (IntIntLTSDotParse.parse !lts1)
-         (IntIntLTSDotParse.parse !lts2)
-         !p
-         !q
-         !n
-         !k
-     in
-     let
-         () =
-       Printf.printf "%s\n"
-         (match
-	     result
-          with
-          | [] -> "The relation holds."
-          | _ -> "The relation does not hold."
-         )
-     in
-     let
-         () =
-       (List.iter
-          (function ((n:int), (k:int), (f:IntIntLTSNK_Rel.hm_formula)) ->
-	    Printf.printf
-              "n = %s, k = %s, f = %s\n"
-              (string_of_int n)
-              (string_of_int k)
-              (IntIntLTSNK_Rel.translate (IntIntLTSNK_Rel.minimise f)))
-          result)
-     in
-     exit 0);;
+  (* else *)
+  (*   (let *)
+  (*       result = *)
+  (*      (if *)
+  (*          !equivalence *)
+  (*       then *)
+  (*          IntIntLTSNK_Rel.get_distinguishing_formulae2 *)
+  (*       else *)
+  (*          IntIntLTSNK_Rel.get_distinguishing_formulae1) *)
+  (*        (IntIntLTSDotParse.parse !lts1) *)
+  (*        (IntIntLTSDotParse.parse !lts2) *)
+  (*        !p *)
+  (*        !q *)
+  (*        !n *)
+  (*        !k *)
+  (*    in *)
+  (*    let *)
+  (*        () = *)
+  (*      Printf.printf "%s\n" *)
+  (*        (match *)
+  (*            result *)
+  (*         with *)
+  (*         | [] -> "The relation holds." *)
+  (*         | _ -> "The relation does not hold." *)
+  (*        ) *)
+  (*    in *)
+  (*    let *)
+  (*        () = *)
+  (*      (List.iter *)
+  (*         (function ((n:int), (k:int), (f:IntIntLTSNK_Rel.hm_formula)) -> *)
+  (*           Printf.printf *)
+  (*             "n = %s, k = %s, f = %s\n" *)
+  (*             (string_of_int n) *)
+  (*             (string_of_int k) *)
+  (*             (IntIntLTSNK_Rel.translate (IntIntLTSNK_Rel.minimise f))) *)
+  (*         result) *)
+  (*    in *)
+  (*    exit 0) *);;
