@@ -6,13 +6,21 @@ typedef std::vector<VU> VVU;
 #include <chrono>
 #include <unistd.h>
 
+VU max_nodes(1, 1);
 std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
 
 void fill(VVU &lts, unsigned int root, unsigned int size, VU &leaves) {
   if (size <= 1)
     leaves.push_back(root);
   else {
-    std::uniform_int_distribution<unsigned int> distribution(0,size - 1);
+    unsigned int h;
+    for (h = 0; h < max_nodes.size() && max_nodes[h] < size; ++h) ;
+    while (max_nodes[h] < size) {
+      max_nodes.push_back(1 + 2 * max_nodes[h]);
+      ++h;
+    }
+
+    std::uniform_int_distribution<unsigned int> distribution(size - 1 - max_nodes[h - 1], max_nodes[h - 1]);
     unsigned int left_subtree_size(distribution(generator));
     if (left_subtree_size > 0) {
       fill(lts, root + 1, left_subtree_size, leaves);
