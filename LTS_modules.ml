@@ -945,3 +945,64 @@ module IntIntLTSDotParse =
      end)
 
 module IntIntLTSNK_Rel = NK_Rel (IntIntLTS)
+
+module StringV =
+  (struct
+    type t = string
+    let compare = Pervasives.compare
+    let hash = Hashtbl.hash
+    let equal = Pervasives.(=)
+    let state_name s = s
+   end)
+
+module StringE =
+  (struct
+    type t = string
+    let compare = Pervasives.compare
+    let default = ""
+    type action = t
+    let action_name s = s
+   end)
+
+module StringStringLTS = LTS_Functor (StringV) (StringE)
+
+module StringStringLTSDot = LTS_Dot_Functor (StringStringLTS)
+
+module StringStringLTSDotParse =
+  Dot.Parse
+    (Builder.P (StringStringLTS))
+    (struct
+      let node (id, _) _ =
+        match
+          id
+        with
+        | Dot_ast.Number s
+        | Dot_ast.Ident s
+        | Dot_ast.Html s
+        | Dot_ast.String s -> s
+
+      let edge attr_list =
+        try
+          (let
+              (_, id) =
+             List.find
+               (function
+               | (Dot_ast.Number s, _)
+               | (Dot_ast.Ident s, _)
+               | (Dot_ast.Html s, _)
+               | (Dot_ast.String s, _) -> s = "label")
+               (List.concat attr_list)
+           in
+           match
+             id
+           with
+           | Some (Dot_ast.Number s)
+           | Some (Dot_ast.Ident s)
+           | Some (Dot_ast.Html s)
+           | Some (Dot_ast.String s) -> s
+           | None -> raise Not_found)
+        with
+        | Not_found -> StringE.default
+     end)
+
+module StringStringLTSNK_Rel = NK_Rel (StringStringLTS)

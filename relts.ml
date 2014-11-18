@@ -14,10 +14,10 @@ let _ =
       lts2 = ref ""
   in
   let
-      p = ref (-1)
+      p = ref ""
   in
   let
-      q = ref (-1)
+      q = ref ""
   in
   let
       relation = ref false
@@ -35,8 +35,8 @@ let _ =
        ("-k", Arg.Set_int k, "number of rounds allowed.");
        ("--lts1", Arg.Set_string lts1, "lts where challenger begins.");
        ("--lts2", Arg.Set_string lts2, "lts where defender begins.");
-       ("-p", Arg.Set_int p, "initial state in lts1.");
-       ("-q", Arg.Set_int q, "initial state in lts2.");
+       ("-p", Arg.Set_string p, "initial state in lts1.");
+       ("-q", Arg.Set_string q, "initial state in lts2.");
        ("--pairs", Arg.Set pairs, "print (n, k) pairs only.");
        ("--relation", Arg.Set relation, "print existence of relation only.");
        ("--equivalence", Arg.Set equivalence, "use the equivalence relation.")]
@@ -51,11 +51,11 @@ let _ =
        (if
 	   !equivalence
         then
-	   IntIntLTSNK_Rel.get_nk_pairs2
+	   StringStringLTSNK_Rel.get_nk_pairs2
         else
-	   IntIntLTSNK_Rel.get_nk_pairs1)
-         (IntIntLTSDotParse.parse !lts1)
-         (IntIntLTSDotParse.parse !lts2)
+	   StringStringLTSNK_Rel.get_nk_pairs1)
+         (StringStringLTSDotParse.parse !lts1)
+         (StringStringLTSDotParse.parse !lts2)
          !p
          !q
          !n
@@ -94,11 +94,11 @@ let _ =
        (if
 	   !equivalence
         then
-	   IntIntLTSNK_Rel.get_distinguishing_formulae2
+	   StringStringLTSNK_Rel.get_distinguishing_formulae2
         else
-	   IntIntLTSNK_Rel.get_distinguishing_formulae1)
-         (IntIntLTSDotParse.parse !lts1)
-         (IntIntLTSDotParse.parse !lts2)
+	   StringStringLTSNK_Rel.get_distinguishing_formulae1)
+         (StringStringLTSDotParse.parse !lts1)
+         (StringStringLTSDotParse.parse !lts2)
          !p
          !q
          !n
@@ -117,12 +117,12 @@ let _ =
      let
          () =
        (List.iter
-          (function ((n:int), (k:int), (f:IntIntLTSNK_Rel.hm_formula)) ->
+          (function ((n:int), (k:int), (f:StringStringLTSNK_Rel.hm_formula)) ->
 	    Printf.printf
               "n = %s, k = %s, f = %s\n"
               (string_of_int n)
               (string_of_int k)
-              (IntIntLTSNK_Rel.translate (IntIntLTSNK_Rel.minimise f)))
+              (StringStringLTSNK_Rel.translate (StringStringLTSNK_Rel.minimise f)))
           result)
      in
      exit 0);;
