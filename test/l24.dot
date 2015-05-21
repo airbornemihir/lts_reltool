@@ -1,5 +1,5 @@
 digraph {
-  86 -> 87 ["action" = 0]
-  87 -> 88 ["action" = 1]
-  87 -> 89 ["action" = 2]
+  86 -> 87 ["label" = 0]
+  87 -> 88 ["label" = 1]
+  87 -> 89 ["label" = 2]
 }

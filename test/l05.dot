@@ -1,4 +1,4 @@
 digraph {
-  23 -> 23 ["action" = 0]
-  23 -> 24 ["action" = 0]
+  23 -> 23 ["label" = 0]
+  23 -> 24 ["label" = 0]
 }

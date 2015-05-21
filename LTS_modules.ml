@@ -929,7 +929,7 @@ module IntIntLTSDotParse =
                | (Dot_ast.Number s, _)
                | (Dot_ast.Ident s, _)
                | (Dot_ast.Html s, _)
-               | (Dot_ast.String s, _) -> s = "action")
+               | (Dot_ast.String s, _) -> s = "label")
                (List.concat attr_list)
            in
            match

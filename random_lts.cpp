@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
   }
   for (unsigned int i1(1); i1 <= n; ++i1) 
     for (unsigned int i2(1); i2 <= lts[i1 - 1].size(); ++i2) 
-      std::cout << (buffer + i1) << " -> " << (buffer + lts[i1 - 1][i2 - 1]) << " [\"action\" = 0]" << std::endl;
+      std::cout << (buffer + i1) << " -> " << (buffer + lts[i1 - 1][i2 - 1]) << " [\"label\" = 0]" << std::endl;
   std::cout << "}" << std::endl;
   return 0;
 }

@@ -1,3 +1,3 @@
 digraph {
-  39 -> 39 ["action" = 0]
+  39 -> 39 ["label" = 0]
 }
