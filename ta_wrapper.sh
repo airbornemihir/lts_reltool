@@ -13,16 +13,16 @@ else
     calc < $2 > /dev/null 2> /dev/null
     mv /tmp/lts.dot /tmp/lts2.dot
     v2=`head -n 2 /tmp/lts2.dot | tail -n 1 | sed 's/;$//'`
-    if [ -n "$3"]
+    if [ -n "$3" ];
     then
-        if [ -n "$4"]
+        if [ -n "$4" ];
         then
             bash -c "relts --lts1 /tmp/lts1.dot --lts2 /tmp/lts2.dot -p $v1 -q $v2 -n $3 -k $4"
         else
             bash -c "relts --lts1 /tmp/lts1.dot --lts2 /tmp/lts2.dot -p $v1 -q $v2 -n $3"
         fi
     else
-        if [ -n "$4"]
+        if [ -n "$4" ];
         then
             bash -c "relts --lts1 /tmp/lts1.dot --lts2 /tmp/lts2.dot -p $v1 -q $v2 -k $4"
         else
