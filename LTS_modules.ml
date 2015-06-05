@@ -276,7 +276,7 @@ module NK_Rel =
             no_table
             p
             q
-            (n, k, f) =
+            ((n, k, f):strategy) =
           if
             (List.exists
                (function (p1, q1, (n1, k1, f1)) ->
@@ -285,13 +285,16 @@ module NK_Rel =
           then
             no_table
           else
-            ((p, q, (n, k, f))::
+	    (if n = 0 && k = 1
+            then (Printf.printf "ADD_ENTRY_NO_TABLE: %s %s %s %s\n" (LTS.vertex_name p) (LTS.vertex_name q) (string_of_int n) (string_of_int k); flush stdout)
+	    else ();
+		(p, q, (n, k, f))::
                 (List.filter
                    (function (p1, q1, (n1, k1, f1)) ->
                      (p1 <> p) || (q1 <> q) || (n1 < n) || (k1 < k))
                    no_table))
 
-        let fetch_entries_no_table no_table p q n k =
+        let fetch_entries_no_table no_table p q (n:int) (k:int) =
           List.map
             (function (_, _, (n1, k1, f1)) -> (n1, k1, f1))
             (List.filter
@@ -363,6 +366,8 @@ module NK_Rel =
         let base_case_strategy = (0, 1, [AND[]])
 
         let base_case_strategy_options = (0, 0, [])
+
+        let debugging_get_n_k (n, k, _) = (n, k)
 
       end)
 
@@ -466,6 +471,8 @@ module NK_Rel =
 
         let base_case_strategy_options = (0, 0)
 
+        let debugging_get_n_k (n, k) = (n, k)
+
       end)
 
       module Relation_functor = functor
@@ -507,6 +514,7 @@ module NK_Rel =
             val add_round_and_alternation: strategy -> strategy
             val base_case_strategy: strategy_options
             val base_case_strategy_options: strategy_options
+            val debugging_get_n_k: strategy -> (int * int)
           end) -> (struct
             open Strategy
 
@@ -527,6 +535,12 @@ module NK_Rel =
                 (* rel is some specific relation, can be a prebisim or a
                    simulation equivalence or a bisimulation *)
 	        rel = (
+	      Printf.printf "%s %s %s %s\n" (LTS.vertex_name p) (LTS.vertex_name q) (string_of_int n) (string_of_int k);
+	      flush stdout;
+	      (* if n = 199995 && k = 199992 *)
+	      if n = -6 && k = -9
+		then () 
+		else ();
               if k = 0 then ([], yes_table, no_table)
               else if check_entry_yes_table yes_table p q n k
               then ([], yes_table, no_table)
@@ -534,7 +548,13 @@ module NK_Rel =
                 match
                   fetch_entries_no_table no_table p q n k
                 with
-                | hd::tl -> (hd::tl, yes_table, no_table)
+                | hd::tl -> ( let (n1, k1) = debugging_get_n_k hd in
+                              if n = 199995 && k = 199992
+                              then (Printf.printf " HEAD: %s %s\n" (string_of_int n1) (string_of_int
+                                                                           k1);
+                              flush stdout)
+                              else ();
+                  (hd::tl, yes_table, no_table))
                 | [] -> (
 	          let yes_table = add_entry_yes_table yes_table p q n k in
 	          (* for each successor p' of p, check if that is simulated by
