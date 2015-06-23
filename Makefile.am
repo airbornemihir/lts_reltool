@@ -5,8 +5,8 @@ bin_SCRIPTS = relts$(EXEEXT) random_lts$(EXEEXT)
 PACKAGES = -package ocamlgraph
 LIBS     = -linkpkg
 
-OCAMLCOMP = $(OCAMLFIND) ocamlc $(PACKAGES) -c -o $@ $^
-OCAMLLINK = $(OCAMLFIND) ocamlc $(PACKAGES) $(LIBS) -o $@ $^
+OCAMLCOMP = $(OCAMLFIND) ocamlc -g $(PACKAGES) -c -o $@ $^
+OCAMLLINK = $(OCAMLFIND) ocamlc -g $(PACKAGES) $(LIBS) -o $@ $^
 
 CXXLINK = $(CXX) $(CXXFLAGS) -o $@ $^
 CXXCOMP = $(CXX) $(CXXFLAGS) -c -o $@ $^
