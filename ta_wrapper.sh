@@ -26,6 +26,7 @@ else
         then
             bash -c "relts --lts1 /tmp/lts1.dot --lts2 /tmp/lts2.dot -p $v1 -q $v2 -k $4"
         else
+            echo "relts --lts1 /tmp/lts1.dot --lts2 /tmp/lts2.dot -p $v1 -q $v2"
             bash -c "relts --lts1 /tmp/lts1.dot --lts2 /tmp/lts2.dot -p $v1 -q $v2"
         fi
     fi
