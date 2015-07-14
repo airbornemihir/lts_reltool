@@ -299,7 +299,10 @@ module NK_Rel =
             (function (_, _, (n1, k1, f1)) -> (n1, k1, f1))
             (List.filter
                (function (p1, q1, (n1, k1, f1)) ->
-                 (p1 = p) && (q1 = q) && (n1 <= n) && (k1 <= k))
+                 (p1 = p)
+                 && (q1 = q)
+                 && (n < 0 || n1 <= n)
+                 && (k < 0 || k1 <= k))
                no_table)
 
         let create_no_table () = []
@@ -405,7 +408,10 @@ module NK_Rel =
             (function (_, _, (n1, k1)) -> (n1, k1))
             (List.filter
                (function (p1, q1, (n1, k1)) ->
-                 (p1 = p) && (q1 = q) && (n1 <= n) && (k1 <= k))
+                 (p1 = p)
+                 && (q1 = q)
+                 && (n < 0 || n1 <= n)
+                 && (k < 0 || k1 <= k))
                no_table)
 
         let create_no_table () = []
